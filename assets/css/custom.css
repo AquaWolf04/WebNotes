@@ -1,0 +1,118 @@
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spinner-rotate {
+    animation: spin 1s linear infinite;
+}
+
+/* Hibaüzenetek modern stílusban */
+.error-message {
+    color: #ff4d4d;
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.error-message::before {
+    content: '⚠';
+    font-size: 16px;
+    color: #ff4d4d;
+}
+
+/* Animáció az eltűnéshez */
+.error-message.hidden {
+    opacity: 0;
+    transform: translateY(-5px);
+}
+
+/* Hiba esetén az input mező piros szegélyt kap */
+.input-error {
+    border: 2px solid #ff4d4d !important;
+    box-shadow: 0 0 5px rgba(255, 77, 77, 0.5);
+    transition: border 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+/* Ha a felhasználó elkezd írni, visszaáll az alapértelmezett állapotba */
+.input-error:focus {
+    border: 2px solid #007bff !important;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Figyelmeztető ikon megjelenítése a jobb oldalon */
+.input-wrapper {
+    position: relative;
+}
+
+.error-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #ff4d4d;
+    font-size: 18px;
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.hidden-icon {
+    opacity: 0;
+}
+
+/* Közös beállítások */
+#admin,
+#premium {
+    position: relative;
+    padding: 3px 5px;
+    border-radius: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    overflow: hidden;
+}
+
+#admin {
+    color: #fff;
+    background: linear-gradient(45deg, #ff0000, #a00000);
+    animation: flicker 1.5s infinite alternate;
+}
+
+#premium {
+    color: #fff;
+    background: linear-gradient(45deg, #ffcc00, #ff8c00);
+    animation: glow 1.5s infinite alternate;
+}
+
+@keyframes flicker {
+    0% {
+        box-shadow: 0 0 10px rgba(255, 0, 0, 0.4);
+    }
+    100% {
+        box-shadow: 0 0 20px rgba(255, 0, 0, 0.9);
+    }
+}
+
+@keyframes glow {
+    0% {
+        box-shadow: 0 0 10px rgba(255, 165, 0, 0.4);
+    }
+    100% {
+        box-shadow: 0 0 20px rgba(255, 165, 0, 1);
+    }
+}
+
+#admin:hover,
+#premium:hover {
+    transform: scale(1.08);
+    transition: 0.3s ease-in-out;
+}

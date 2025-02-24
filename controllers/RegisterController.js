@@ -25,7 +25,9 @@ const validateRegister = [
         .matches(/[0-9]/)
         .withMessage('A jelszónak tartalmaznia kell számot.')
         .matches(/[A-Z]/)
-        .withMessage('A jelszónak tartalmaznia kell nagybetűt.'),
+        .withMessage('A jelszónak tartalmaznia kell nagybetűt.')
+        .matches(/[!@#$%^&*(),.?":{}|<>]/)
+        .withMessage('A jelszónak tartalmaznia kell speciális karaktert.'),
     body('confirm_password')
         .custom((value, { req }) => value === req.body.create_password)
         .withMessage('A jelszavak nem egyeznek.'),
@@ -40,6 +42,15 @@ const register = async (req, res) => {
     const { last_name, first_name, username, email, create_password } = req.body
 
     try {
+        const [countError, userCountResult] = await connectDB('SELECT COUNT(*) as count FROM users', [])
+
+        if (countError) {
+            return res.status(500).json({ errors: [{ msg: 'Hiba történt az adatbázis ellenőrzése során.' }] })
+        }
+
+        const userCount = userCountResult[0].count
+        const role = userCount === 0 ? 'admin' : 'user'
+
         const [userCheckError, existingUsers] = await connectDB('SELECT * FROM users WHERE email = ? OR username = ?', [
             email,
             username,
@@ -55,20 +66,21 @@ const register = async (req, res) => {
         const fullName = `${last_name} ${first_name}`
 
         const [insertError] = await connectDB(
-            'INSERT INTO users (name, username, email, password, registration_date) VALUES (?, ?, ?, ?, NOW())',
-            [fullName, username, email, hashedPassword]
+            'INSERT INTO users (name, username, email, password, role, registration_date) VALUES (?, ?, ?, ?, ?, NOW())',
+            [fullName, username, email, hashedPassword, role]
         )
 
         if (insertError) {
             return res.status(500).json({ errors: [{ msg: 'Hiba történt a regisztráció során.' }] })
         }
 
-        logger.info(`Új felhasználó regisztrált: ${username} (${email})`)
+        logger.info(`Új felhasználó regisztrált: ${username} (${email}), szerep: ${role}`)
 
         req.session.message = {
             message: 'Sikeres regisztráció!',
             type: 'success',
         }
+
         return res.json({ success: true, redirect: '/login' })
     } catch (error) {
         logger.error(`Hiba történt a regisztráció során: ${error.message}`)

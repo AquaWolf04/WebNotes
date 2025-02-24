@@ -1,61 +1,51 @@
-const { password } = require('../config/config')
 const connectDB = require('../config/db')
 const bcrypt = require('bcryptjs')
 
 const login = async (req, res, next) => {
-    const { username, password } = req.body
+    const { username, password, _csrf } = req.body // CSRF tokent is ellenőrizzük
 
     if (!username || !password) {
-        message = {
-            message: 'Felhasználónév és jelszó megadása kötelező',
-            type: 'error',
-        }
-        req.session.message = message
-        return res.redirect('/')
+        return res.status(400).json({
+            errors: [{ msg: 'Felhasználónév és jelszó megadása kötelező' }],
+        })
     }
 
-    const query = 'SELECT * FROM user WHERE username = ?'
+    const query = 'SELECT * FROM users WHERE username = ?'
     const values = [username]
 
     try {
         const [code, result] = await connectDB(query, values)
 
         if (code == 1 || result.length == 0) {
-            message = {
-                message: 'Hibás felhasználónév vagy jelszó',
-                type: 'error',
-            }
-            req.session.message = message
-            return res.redirect('/')
+            return res.status(400).json({
+                errors: [{ msg: 'Hibás felhasználónév vagy jelszó' }],
+            })
         }
 
         const user = result[0]
         const isMatch = await bcrypt.compare(password, user.password)
 
         if (!isMatch) {
-            message = {
-                message: 'Hibás felhasználónév vagy jelszó',
-                type: 'error',
-            }
-            req.session.message = message
-            return res.redirect('/')
+            return res.status(400).json({
+                errors: [{ msg: 'Hibás felhasználónév vagy jelszó' }],
+            })
         }
 
+        // Felhasználó beléptetése
         req.session.user = {
             id: user.id,
+            name: user.name,
+            role: user.role,
             username: user.username,
             email: user.email,
         }
 
-        message = {
-            message: 'Sikeres bejelentkezés',
-            type: 'success',
-        }
-        req.session.message = message
-        return res.redirect('/')
+        return res.json({ success: true, redirect: '/' })
     } catch (err) {
         console.error(err)
-        res.sendStatus(500)
+        return res.status(500).json({
+            errors: [{ msg: 'Szerverhiba történt. Próbáld újra később!' }],
+        })
     }
 }
 

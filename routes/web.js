@@ -15,18 +15,29 @@ router.get('/', (req, res) => {
             user: req.session.user,
         })
     } else {
-        let session_info = req.session.message
-        delete req.session.message
-        res.render('login', {
-            status: session_info,
-        })
+        res.redirect('/login')
     }
+})
+
+router.get('/profile', async (req, res) => {
+    if (!req.session.user) {
+        return res.redirect('/login')
+    }
+
+    console.log('🔹 Session user objektum:', req.session.user) // Itt ellenőrizzük!
+
+    res.render('profile', { user: req.session.user }) // EJS renderelés
 })
 
 router.get('/notes/list', ncontroller.list)
 
 router.get('/login', (req, res) => {
-    res.render('login')
+    let session_info = req.session.message
+    delete req.session.message
+
+    res.render('login', {
+        status: session_info,
+    })
 })
 
 router.get('/register', (req, res) => {

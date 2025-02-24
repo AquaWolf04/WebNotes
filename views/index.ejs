@@ -6,6 +6,8 @@
         <title>WebNotes - Jegyzetek</title>
         <link rel="stylesheet" href="/css/tabler.min.css" />
         <link href="/css/tabler-icons-outline.min.css" rel="stylesheet" />
+        <link href="/css/custom.css" rel="stylesheet" />
+
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" />
         <script src="/libs/tinymce/tinymce.min.js"></script>
     </head>
@@ -38,7 +40,14 @@
                             <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown">
                                 <span class="avatar avatar-sm rounded"> <%= user.username.charAt(0).toUpperCase() %> </span>
                                 <div class="d-none d-xl-block ps-2">
-                                    <div><%= user.username %></div>
+                                    <div class="user-name">
+                                        <%= user.name %> <% if (user.role === "admin") { %>
+                                        <i id="admin" class="ti ti-crown"></i>
+                                        <% } else if (user.role === "premium") { %>
+                                        <i id="premium" class="ti ti-star"></i>
+                                        <% } %>
+                                    </div>
+
                                     <div class="mt-1 small text-muted"><%= user.email %></div>
                                 </div>
                             </a>
@@ -364,11 +373,6 @@
                 const savedTheme = localStorage.getItem('theme') || 'light'
                 document.body.setAttribute('data-bs-theme', savedTheme)
             })
-        </script>
-        <script>
-            <% if (typeof status !== 'undefined') { %>
-                toastr.<%= status.type %>("<%= status.message %>")
-            <% } %>
         </script>
     </body>
 </html>
