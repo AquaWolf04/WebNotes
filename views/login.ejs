@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="hu">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title> WebNotes -//- Bejelentkezés </title>
+        <link href="/css/tabler.min.css" rel="stylesheet" />
+        <link href="/css/demo.min.css" rel="stylesheet" />
+        <link href="/css/tabler-icons-outline.min.css" rel="stylesheet" />
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.css" rel="stylesheet" />
+        <style>
+            @import url('https://rsms.me/inter/inter.css');
+            :root {
+                --tblr-font-sans-serif: 'Inter Var', -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
+            }
+            body {
+                font-feature-settings: 'cv03', 'cv04', 'cv11';
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                background-attachment: fixed;
+                transition: background-image 0.3s ease-in-out;
+            }
+            .theme-toggle {
+                position: fixed;
+                top: 1rem;
+                right: 1rem;
+                z-index: 1000;
+            }
+        </style>
+    </head>
+    <body class="d-flex flex-column">
+        <script src="/js/theme.min.js"></script>
+        <div class="theme-toggle">
+            <a href="#" class="nav-link px-0 hide-theme-dark" title="Sötét mód bekapcsolása" data-bs-toggle="tooltip" data-bs-placement="bottom">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+                </svg>
+            </a>
+            <a href="#" class="nav-link px-0 hide-theme-light" title="Világos mód bekapcsolása" data-bs-toggle="tooltip" data-bs-placement="bottom">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <circle cx="12" cy="12" r="4" />
+                    <path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7" />
+                </svg>
+            </a>
+        </div>
+        <div class="page page-center">
+            <div class="container container-tight py-4">
+                <div class="card card-md">
+                    <div class="card-body">
+                        <h2 class="h2 text-center mb-4"> Jelentkezz be a fiókodban. </h2>
+                        <form action="/login" method="POST" autocomplete="off" novalidate>
+                            <div class="mb-3">
+                                <label class="form-label"> Felhasználónév </label>
+                                <input name="username" type="text" class="form-control" placeholder="Add meg a felhasználónevedet" autocomplete="off" required />
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label">
+                                    Jelszó
+                                    <span class="form-label-description">
+                                        <a href="/forgot-password">Elfelejtett jelszó</a>
+                                    </span>
+                                </label>
+                                <div class="input-group input-group-flat">
+                                    <input name="password" type="password" class="form-control" placeholder="Add meg a jelszavadat" autocomplete="off" required />
+                                </div>
+                            </div>
+                            <div class="form-footer">
+                                <button type="submit" class="btn btn-primary w-100"> Bejelentkezés </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="text-center text-secondary mt-3"> Nincs még fiókod? <a href="/register">Regisztrálj</a> </div>
+            </div>
+        </div>
+        <script src="/js/tabler.min.js" defer></script>
+        <script src="/js/demo.min.js" defer></script>
+        <script src="/js/app.js" defer></script>
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+        <script>
+            toastr.options = {
+                closeButton: false,
+                debug: false,
+                newestOnTop: false,
+                progressBar: false,
+                positionClass: 'toast-top-right',
+                preventDuplicates: false,
+                onclick: null,
+                showDuration: '300',
+                hideDuration: '1000',
+                timeOut: '5000',
+                extendedTimeOut: '1000',
+                showEasing: 'swing',
+                hideEasing: 'linear',
+                showMethod: 'fadeIn',
+                hideMethod: 'fadeOut',
+            }
+        </script>
+        <script>
+            <% if (typeof status !== 'undefined') { %>
+                toastr.<%= status.type %>("<%= status.message %>")
+            <% } %>
+        </script>
+    </body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="hu">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>WebNotes -//- Regisztráció</title>
+        <link href="/css/tabler.min.css" rel="stylesheet" />
+        <link href="/css/demo.min.css" rel="stylesheet" />
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.css" rel="stylesheet" />
+    </head>
+    <style>
+        @import url('https://rsms.me/inter/inter.css');
+        :root {
+            --tblr-font-sans-serif: 'Inter Var', -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
+        }
+        body {
+            font-feature-settings: 'cv03', 'cv04', 'cv11';
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            transition: background-image 0.3s ease-in-out;
+        }
+        .theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+        }
+    </style>
+    <body class="d-flex flex-column">
+        <script src="/js/theme.min.js"></script>
+        <div class="theme-toggle">
+            <a href="#" class="nav-link px-0 hide-theme-dark" title="Sötét mód bekapcsolása" data-bs-toggle="tooltip" data-bs-placement="bottom">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+                </svg>
+            </a>
+            <a href="#" class="nav-link px-0 hide-theme-light" title="Világos mód bekapcsolása" data-bs-toggle="tooltip" data-bs-placement="bottom">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <circle cx="12" cy="12" r="4" />
+                    <path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7" />
+                </svg>
+            </a>
+        </div>
+        <div class="page page-center">
+            <div class="container container-tight py-4" style="max-width: 650px">
+                <div class="card card-md">
+                    <div class="card-body">
+                        <h2 class="h2 text-center mb-4"> Hozz létre egy fiókot! </h2>
+                        <form id="registerForm">
+                            <div class="row">
+                                <input type="hidden" id="csrf_token" name="_csrf" value="<%= csrfToken %>" />
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Vezetéknév</label>
+                                        <input type="text" class="form-control" placeholder="Vezetéknév" id="vezeteknev" name="last_name" />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Keresztnév</label>
+                                        <input type="text" class="form-control" placeholder="Keresztnév" id="keresztnev" name="first_name" />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Felhasználónév</label>
+                                        <input type="text" class="form-control" placeholder="Felhasználónév" id="username" name="username" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">E-mail cím</label>
+                                        <input type="email" class="form-control" placeholder="E-mail cím" id="email" name="email" />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Jelszó</label>
+                                        <input type="password" class="form-control" placeholder="Jelszó" id="create_password" name="create_password" />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Jelszó megerősítése</label>
+                                        <input type="password" class="form-control" placeholder="Jelszó megerősítése" id="confirm_password" name="confirm_password" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-footer">
+                                <button type="submit" id="registerButton" class="btn btn-primary w-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-user-plus">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                                        <path d="M16 19h6" />
+                                        <path d="M19 16v6" />
+                                        <path d="M6 21v-2a4 4 0 0 1 4 -4h4" />
+                                    </svg>
+                                    Regisztráció
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="text-center text-secondary mt-3"> Már van fiókod? <a href="/">Jelentkezz be</a> </div>
+            </div>
+        </div>
+        <script src="/js/tabler.min.js" defer></script>
+        <script src="/js/demo.min.js" defer></script>
+        <script src="/js/app.js" defer></script>
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+        <script>
+            toastr.options = {
+                closeButton: false,
+                debug: false,
+                newestOnTop: false,
+                progressBar: false,
+                positionClass: 'toast-top-right',
+                preventDuplicates: false,
+                onclick: null,
+                showDuration: '300',
+                hideDuration: '1000',
+                timeOut: '5000',
+                extendedTimeOut: '1000',
+                showEasing: 'swing',
+                hideEasing: 'linear',
+                showMethod: 'fadeIn',
+                hideMethod: 'fadeOut',
+            }
+        </script>
+        <script>
+            $(document).ready(function () {
+                $('#registerForm').on('submit', function (e) {
+                    e.preventDefault() // Megakadályozza az oldal újratöltődését
+
+                    // Gomb tiltása a dupla kattintás elkerülése érdekében
+                    let $submitButton = $('#registerButton')
+                    $submitButton.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Regisztráció...')
+
+                    // Form adatok összegyűjtése
+                    let formData = {
+                        _csrf: $('#csrf_token').val(),
+                        last_name: $('#vezeteknev').val(),
+                        first_name: $('#keresztnev').val(),
+                        username: $('#username').val(),
+                        email: $('#email').val(),
+                        create_password: $('#create_password').val(),
+                        confirm_password: $('#confirm_password').val(),
+                    }
+
+                    // AJAX kérés küldése
+                    $.ajax({
+                        type: 'POST',
+                        url: '/register',
+                        contentType: 'application/json',
+                        data: JSON.stringify(formData),
+                        success: function (response) {
+                            if (response.success) {
+                                toastr.success('Sikeres regisztráció! Átirányítás...')
+                                setTimeout(() => {
+                                    window.location.href = response.redirect
+                                }, 2000)
+                            }
+                        },
+                        error: function (xhr) {
+                            $submitButton.prop('disabled', false).html('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-user-plus"> <path stroke="none" d="M0 0h24v24H0z" fill="none" /> <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M16 19h6" /><path d="M19 16v6" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4" /> </svg> Regisztráció')
+
+                            try {
+                                let response = xhr.responseJSON
+
+                                if (xhr.status === 400 && response.errors) {
+                                    response.errors.forEach((error) => {
+                                        toastr.error(error.msg)
+                                    })
+                                } else if (xhr.status === 403 && response.error) {
+                                    response.error.forEach((error) => {
+                                        toastr.error(error.msg)
+                                    })
+                                } else {
+                                    toastr.error('Ismeretlen hiba történt. Próbáld újra!')
+                                }
+                            } catch (e) {
+                                toastr.error('Hiba történt! Próbáld újra később.')
+                            }
+                        },
+                    })
+                })
+            })
+        </script>
+        <script>
+            <% if (typeof status !== 'undefined') { %>
+                toastr.<%= status.type %>("<%= status.message %>")
+            <% } %>
+        </script>
+    </body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="hu">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title> WebNotes -//- Bejelentkezés </title>
+        <link href="/css/tabler.min.css" rel="stylesheet" />
+        <link href="/css/demo.min.css" rel="stylesheet" />
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" />
+        <style>
+            @import url('https://rsms.me/inter/inter.css');
+            :root {
+                --tblr-font-sans-serif: 'Inter Var', -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
+            }
+            body {
+                font-feature-settings: 'cv03', 'cv04', 'cv11';
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                background-attachment: fixed;
+                transition: background-image 0.3s ease-in-out;
+            }
+            .theme-toggle {
+                position: fixed;
+                top: 1rem;
+                right: 1rem;
+                z-index: 1000;
+            }
+        </style>
+    </head>
+    <body class="d-flex flex-column">
+        <script src="/js/theme.min.js"></script>
+        <div class="page page-center">
+            <div class="container-tight py-4">
+                <div class="empty">
+                    <div class="empty-header">404</div>
+                    <p class="empty-title">Oops… You just found an error page</p>
+                    <p class="empty-subtitle text-secondary"> We are sorry but the page you are looking for was not found </p>
+                    <div class="empty-action">
+                        <a href="./." class="btn btn-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M5 12l14 0" />
+                                <path d="M5 12l6 6" />
+                                <path d="M5 12l6 -6" />
+                            </svg>
+                            Take me home
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="/js/tabler.min.js" defer></script>
+        <script src="/js/demo.min.js" defer></script>
+        <script src="/js/app.js" defer></script>
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    </body>
+</html>

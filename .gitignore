@@ -1,0 +1,7 @@
+node_modules/
+sql/
+assets/old_css/
+assets/img/flags/
+assets/img/payments/
+assets/libs/
+.env
