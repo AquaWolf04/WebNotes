@@ -6,7 +6,6 @@
         <meta http-equiv="X-UA-Compatible" content="ie=edge" />
         <title> WebNotes -//- Bejelentkezés </title>
         <link href="/css/tabler.min.css" rel="stylesheet" />
-        <link href="/css/demo.min.css" rel="stylesheet" />
         <link href="/css/auth.css" rel="stylesheet" />
         <link href="/css/custom.css" rel="stylesheet" />
         <link href="/css/tabler-icons-outline.min.css" rel="stylesheet" />
@@ -54,7 +53,7 @@
         </div>
         <script src="/js/tabler.min.js" defer></script>
         <script src="/js/demo.min.js" defer></script>
-        <script src="/js/app.js" defer></script>
+        <script src="/js/theme.js" defer></script>
         <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.10.1/dist/sweetalert2.all.min.js"></script>
         <script>
@@ -76,9 +75,7 @@
                     e.preventDefault()
 
                     let $submitButton = $('#loginButton')
-                    $submitButton.prop('disabled', true).html(`<i class="ti ti-loader-2 spinner-rotate"></i>
-                        Bejelentkezés...
-                    `)
+                    $submitButton.prop('disabled', true).html(`<i class="ti ti-loader-2 spinner-rotate"></i> Bejelentkezés...`)
 
                     let formData = {
                         _csrf: $('#csrf_token').val(),
@@ -94,17 +91,22 @@
                         data: JSON.stringify(formData),
                         success: function (response) {
                             if (response.success) {
+                                // ✅ JWT token mentése localStorage-ba
+                                localStorage.setItem('accessToken', response.accessToken)
+                                localStorage.setItem('refreshToken', response.refreshToken)
+
                                 Toast.fire({
                                     icon: 'success',
                                     title: 'Sikeres bejelentkezés! Átirányítás...',
                                 })
+
                                 setTimeout(() => {
                                     window.location.href = response.redirect
                                 }, 2000)
                             }
                         },
                         error: function (xhr) {
-                            $submitButton.prop('disabled', false).html('<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-login-2"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 8v-2a2 2 0 0 1 2 -2h7a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-7a2 2 0 0 1 -2 -2v-2" /><path d="M3 12h13l-3 -3" /><path d="M13 15l3 -3" /></svg> Bejelentkezés')
+                            $submitButton.prop('disabled', false).html('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-login-2"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 8v-2a2 2 0 0 1 2 -2h7a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-7a2 2 0 0 1 -2 -2v-2"/><path d="M3 12h13l-3 -3"/><path d="M13 15l3 -3"/></svg> Bejelentkezés')
 
                             if (xhr.status === 403) {
                                 Toast.fire({

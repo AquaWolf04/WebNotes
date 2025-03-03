@@ -1,19 +1,9 @@
-const connectDB = require('../config/db')
 const bcrypt = require('bcryptjs')
-const logger = require('../utils/logger')
+const logger = require('../../utils/logger')
 const { body, validationResult } = require('express-validator')
-const { Logger } = require('logger')
-const { name } = require('ejs')
+const { User } = require('../models')
 
-// A regisztráció validálása a következő szabályok szerint:
-// - A vezetéknév kötelező.
-// - A keresztnév kötelező.
-// - A felhasználónév kötelező.
-// - Érvényes e-mail címet adj meg.
-// - A jelszónak legalább 8 karakter hosszúnak kell lennie.
-// - A jelszónak tartalmaznia kell számot.
-// - A jelszónak tartalmaznia kell nagybetűt.
-// - A jelszavaknak egyezniük kell.
+// ✅ **Regisztráció validálása**
 const validateRegister = [
     body('last_name').notEmpty().withMessage('A vezetéknév kötelező.'),
     body('first_name').notEmpty().withMessage('A keresztnév kötelező.'),
@@ -33,6 +23,7 @@ const validateRegister = [
         .withMessage('A jelszavak nem egyeznek.'),
 ]
 
+// ✅ **Regisztráció kezelése**
 const register = async (req, res) => {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
@@ -42,37 +33,33 @@ const register = async (req, res) => {
     const { last_name, first_name, username, email, create_password } = req.body
 
     try {
-        const [countError, userCountResult] = await connectDB('SELECT COUNT(*) as count FROM users', [])
-
-        if (countError) {
-            return res.status(500).json({ errors: [{ msg: 'Hiba történt az adatbázis ellenőrzése során.' }] })
-        }
-
-        const userCount = userCountResult[0].count
+        // 🟢 **Megnézzük, van-e már regisztrált felhasználó**
+        const userCount = await User.count()
         const role = userCount === 0 ? 'admin' : 'user'
 
-        const [userCheckError, existingUsers] = await connectDB('SELECT * FROM users WHERE email = ? OR username = ?', [
-            email,
-            username,
-        ])
+        // 🟢 **Ellenőrizzük, hogy az e-mail vagy a felhasználónév már létezik-e**
+        const existingUser = await User.findOne({
+            where: {
+                email,
+            },
+        })
 
-        if (existingUsers.length > 0) {
-            return res.status(400).json({
-                errors: [{ msg: 'A felhasználónév vagy az e-mail cím már foglalt.' }],
-            })
+        if (existingUser) {
+            return res.status(400).json({ errors: [{ msg: 'A felhasználónév vagy az e-mail cím már foglalt.' }] })
         }
 
+        // 🟢 **Jelszó hash-elése**
         const hashedPassword = await bcrypt.hash(create_password, 10)
         const fullName = `${last_name} ${first_name}`
 
-        const [insertError] = await connectDB(
-            'INSERT INTO users (name, username, email, password, role, registration_date) VALUES (?, ?, ?, ?, ?, NOW())',
-            [fullName, username, email, hashedPassword, role]
-        )
-
-        if (insertError) {
-            return res.status(500).json({ errors: [{ msg: 'Hiba történt a regisztráció során.' }] })
-        }
+        // 🟢 **Felhasználó létrehozása**
+        await User.create({
+            name: fullName,
+            username,
+            email,
+            password: hashedPassword,
+            role,
+        })
 
         logger.info(`Új felhasználó regisztrált: ${username} (${email}), szerep: ${role}`)
 

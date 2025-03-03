@@ -7,8 +7,7 @@
         <link rel="stylesheet" href="/css/tabler.min.css" />
         <link href="/css/tabler-icons-outline.min.css" rel="stylesheet" />
         <link href="/css/custom.css" rel="stylesheet" />
-
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" />
+        <link href="https://cdn.jsdelivr.net/npm/sweetalert2@7.12.15/dist/sweetalert2.min.css" rel="stylesheet" />
         <script src="/libs/tinymce/tinymce.min.js"></script>
     </head>
     <body>
@@ -25,7 +24,6 @@
                     </h1>
 
                     <div class="navbar-nav flex-row order-md-last">
-                        <!-- Theme switcher 
                         <div class="nav-item me-3">
                             <a href="?theme=dark" class="nav-link px-0 hide-theme-dark" title="Sötét mód bekapcsolása" data-bs-toggle="tooltip" data-bs-placement="bottom">
                                 <i class="ti ti-moon"></i>
@@ -34,28 +32,25 @@
                                 <i class="ti ti-sun"></i>
                             </a>
                         </div>
-                        -->
 
+                        <!-- Ellenőrizzük, hogy van-e bejelentkezett felhasználó -->
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown">
-                                <span class="avatar avatar-sm rounded"> <%= user.username.charAt(0).toUpperCase() %> </span>
+                                <span class="avatar avatar-sm rounded" id="user-avatar"></span>
                                 <div class="d-none d-xl-block ps-2">
                                     <div class="user-name">
-                                        <%= user.name %> <% if (user.role === "admin") { %>
-                                        <i id="admin" class="ti ti-crown"></i>
-                                        <% } else if (user.role === "premium") { %>
-                                        <i id="premium" class="ti ti-star"></i>
-                                        <% } %>
+                                        <span id="user-name"></span>
+                                        <i id="user-role-icon"></i>
                                     </div>
-
-                                    <div class="mt-1 small text-muted"><%= user.email %></div>
+                                    <div class="mt-1 small text-muted" id="user-email"></div>
                                 </div>
                             </a>
+
                             <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                                <a href="/profile" class="dropdown-item"> <i class="ti ti-user me-1"></i>Profil </a>
-                                <a href="/settings" class="dropdown-item"> <i class="ti ti-settings me-1"></i>Beállítások </a>
+                                <a href="/profile" class="dropdown-item"><i class="ti ti-user me-1"></i>Profil</a>
+                                <a href="/settings" class="dropdown-item"><i class="ti ti-settings me-1"></i>Beállítások</a>
                                 <div class="dropdown-divider"></div>
-                                <a href="/logout" class="dropdown-item text-danger"> <i class="ti ti-logout me-1"></i>Kijelentkezés </a>
+                                <a href="#" class="dropdown-item text-danger" id="logoutBtn"> <i class="ti ti-logout me-1"></i>Kijelentkezés </a>
                             </div>
                         </div>
                     </div>
@@ -133,25 +128,71 @@
         <script src="/js/tabler.min.js"></script>
         <script src="/js/demo.min.js"></script>
         <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-        <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.10.1/dist/sweetalert2.all.min.js"></script>
+        <script src="/js/app.js"></script>
         <script>
-            toastr.options = {
-                closeButton: false,
-                debug: false,
-                newestOnTop: false,
-                progressBar: false,
-                positionClass: 'toast-top-left',
-                preventDuplicates: false,
-                onclick: null,
-                showDuration: '300',
-                hideDuration: '1000',
-                timeOut: '5000',
-                extendedTimeOut: '1000',
-                showEasing: 'swing',
-                hideEasing: 'linear',
-                showMethod: 'fadeIn',
-                hideMethod: 'fadeOut',
-            }
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.onmouseenter = Swal.stopTimer
+                    toast.onmouseleave = Swal.resumeTimer
+                },
+            })
+        </script>
+        <script>
+            document.getElementById('logoutBtn').addEventListener('click', async (event) => {
+                event.preventDefault()
+
+                const refreshToken = localStorage.getItem('refreshToken') // Ha eltároltad a tokent
+
+                if (!refreshToken) {
+                    alert('Hiba: Nem található refresh token.')
+                    return
+                }
+
+                const jwtToken = localStorage.getItem('accessToken') // JWT token beszerzése
+                if (!jwtToken) {
+                    alert('Hiba: Nincs JWT token.')
+                    return
+                }
+
+                // 🔍 CSRF token lekérése (JWT Bearer Token szükséges)
+                const csrfResponse = await fetch('/csrf-token', {
+                    method: 'GET',
+                    headers: { Authorization: `Bearer ${jwtToken}` },
+                })
+
+                if (!csrfResponse.ok) {
+                    alert('Hiba: Nem sikerült lekérni a CSRF tokent.')
+                    return
+                }
+
+                const csrfData = await csrfResponse.json()
+                const csrfToken = csrfData.csrfToken
+
+                const response = await fetch('/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${jwtToken}`, // JWT hozzáadása
+                        'CSRF-Token': csrfToken, // CSRF token hozzáadása
+                    },
+                    body: JSON.stringify({ refreshToken }),
+                })
+
+                const result = await response.json()
+                if (response.ok) {
+                    localStorage.removeItem('refreshToken') // Töröld a tokent
+                    localStorage.removeItem('accessToken') // JWT törlése
+                    window.location.href = '/login' // Átirányítás bejelentkező oldalra
+                } else {
+                    alert(result.errors[0].msg)
+                }
+            })
         </script>
         <script>
             tinymce.init({

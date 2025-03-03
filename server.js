@@ -5,6 +5,7 @@ const csrf = require('csurf')
 const router = require('./routes/web')
 const session = require('express-session')
 const cookieParser = require('cookie-parser')
+const { sequelize } = require('./app/models')
 
 const app = express()
 
@@ -14,12 +15,13 @@ const port = process.env.PORT || 3000
 
 app.use(express.static('assets'))
 
+// ✅ Session konfiguráció frissítése
 app.use(
     session({
         secret: process.env.SESSION_SECRET,
-        resave: false,
-        saveUninitialized: true,
-        cookie: { secure: false },
+        resave: false, // 🔴 Ha false, akkor nem menti el, ha nincs módosítás!
+        saveUninitialized: true, // 🔴 true legyen, hogy új session mindig mentődjön
+        cookie: { secure: false, maxAge: 60000 }, // 60 másodpercig él a session
     })
 )
 
@@ -37,14 +39,25 @@ app.use((req, res, next) => {
     next()
 })
 
-app.use((err, req, res, next) => {
-    if (err.code === 'EBADCSRFTOKEN') {
-        return res.status(403).json({
-            error: [{ msg: 'A CSRF token nem érvényes! Frissítsd az oldalt és próbáld újra.' }],
-        })
+// ✅ Session törlése csak akkor, ha már megjelent az oldalon
+app.use((req, res, next) => {
+    if (req.session && req.session.message) {
+        console.log('✅ Session üzenet törlése:', req.session.message)
+        delete req.session.message
     }
-    next(err)
+    next()
 })
+
+const initDB = async () => {
+    try {
+        await sequelize.authenticate()
+        console.log('✅ | Kapcsolat az adatbázishoz sikeresen létrejött!')
+    } catch (error) {
+        console.error('❌ | Hiba az adatbázishoz való kapcsolódáskor:', error)
+    }
+}
+
+initDB()
 
 app.use('/', router)
 
