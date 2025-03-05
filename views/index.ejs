@@ -9,6 +9,100 @@
         <link href="/css/custom.css" rel="stylesheet" />
         <link href="https://cdn.jsdelivr.net/npm/sweetalert2@7.12.15/dist/sweetalert2.min.css" rel="stylesheet" />
     </head>
+    <style>
+        .promo-banner {
+            background: linear-gradient(120deg, rgba(30, 41, 59, 0.8) 0%, rgba(44, 82, 130, 0.9) 100%);
+            border-radius: 8px;
+            border: 1px solid rgba(88, 133, 208, 0.2);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .promo-banner::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 30% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 80%);
+            z-index: 1;
+        }
+
+        .promo-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(99, 102, 241, 0.2);
+            border-radius: 8px;
+            margin-right: 16px;
+            color: #94a3b8;
+            position: relative;
+        }
+
+        .promo-icon i {
+            font-size: 20px;
+            color: #f8fafc;
+            position: relative;
+            z-index: 2;
+        }
+
+        .promo-icon::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.5) 0%, rgba(56, 189, 248, 0.3) 100%);
+            z-index: 1;
+        }
+
+        .promo-title {
+            font-weight: 600;
+            font-size: 16px;
+            color: #f8fafc;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+        }
+
+        .sparkle {
+            margin-left: 6px;
+            font-size: 16px;
+        }
+
+        .promo-desc {
+            font-size: 14px;
+            color: #94a3b8;
+            margin: 0;
+        }
+
+        .promo-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: #f8fafc;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .promo-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .promo-btn i {
+            margin-left: 8px;
+            font-size: 14px;
+        }
+    </style>
     <body>
         <div class="page">
             <header class="navbar navbar-expand-md navbar-light d-print-none">
@@ -61,7 +155,7 @@
                     <div class="container-xl">
                         <div class="row align-items-center">
                             <div class="col">
-                                <h2 class="page-title">Jegyzetek</h2>
+                                <h2 class="page-title">📒 Jegyzetek</h2>
                             </div>
                             <div class="col-auto ms-auto d-print-none">
                                 <button class="btn btn-primary d-inline-flex align-items-center" onclick="openNoteModal()">
@@ -81,6 +175,27 @@
                                         <i class="ti ti-search"></i>
                                     </span>
                                     <input type="text" class="form-control" placeholder="Jegyzetek keresése..." id="searchInput" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="promo-banner">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-8 d-flex align-items-center position-relative" style="z-index: 2">
+                                            <div class="promo-icon">
+                                                <i class="ti ti-star"></i>
+                                            </div>
+                                            <div class="promo-text">
+                                                <h3 class="promo-title">WebNotes Pro vár rád! <span class="sparkle">✨</span></h3>
+                                                <p class="promo-desc">Tapasztald meg a korlátlan lehetőségeket és prémium funkciókat.</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 text-md-end text-start mt-3 mt-md-0">
+                                            <button class="promo-btn" onclick="upgradeToPro()"> Frissítés <i class="ti ti-arrow-right"></i> </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -188,7 +303,7 @@
               <div class="card card-body text-center">
                 <i class="ti ti-notes-off icon-lg text-muted mb-3"></i>
                 <h3>Nincsenek jegyzetek</h3>
-                <p class="text-muted">Hozz létre egy új jegyzetet a "+" gombbal!</p>
+                <p class="text-muted">Hozz létre egy új jegyzetet a "+ Új jegyzet" gombbal!</p>
               </div>
             </div>`
                     return
