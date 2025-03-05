@@ -28,7 +28,12 @@ router.get('/register', (req, res) => res.render('register'))
    =========================== */
 router.post('/login', LoginController.login)
 router.get('/logout', LoginController.logout)
-router.post('/register', csrfProtection, RegisterController.register, RegisterController.validation)
+router.post(
+    '/register',
+    RegisterController.validation,
+    csrfProtection,
+    RegisterController.register
+)
 
 /* ===========================
        VÉDETT ENDPOINT-OK

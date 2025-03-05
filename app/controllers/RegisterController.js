@@ -8,7 +8,11 @@ const validation = [
     body('last_name').notEmpty().withMessage('A vezetéknév kötelező.'),
     body('first_name').notEmpty().withMessage('A keresztnév kötelező.'),
     body('username').notEmpty().withMessage('A felhasználónév kötelező.'),
-    body('email').isEmail().withMessage('Érvényes e-mail címet adj meg.'),
+    body('email')
+        .notEmpty()
+        .withMessage('Az email mező nem lehet üres.')
+        .isEmail()
+        .withMessage('Érvényes e-mail címet adj meg.'),
     body('create_password')
         .isLength({ min: 8 })
         .withMessage('A jelszónak legalább 8 karakter hosszúnak kell lennie.')
@@ -35,6 +39,8 @@ const register = async (req, res) => {
 
     const { last_name, first_name, username, email, create_password } = req.body
 
+    console.log('Kapott email:', email, 'Típusa:', typeof email)
+
     try {
         const userCount = await User.count()
         const role = userCount === 0 ? 'admin' : 'user'
@@ -46,7 +52,13 @@ const register = async (req, res) => {
                 message: 'A felhasználónév vagy az e-mail cím már foglalt.',
                 type: 'error',
             }
-            return res.status(400).json({ errors: [{ msg: 'A felhasználónév vagy az e-mail cím már foglalt.' }] })
+            return res.status(400).json({
+                errors: [
+                    {
+                        msg: 'A felhasználónév vagy az e-mail cím már foglalt.',
+                    },
+                ],
+            })
         }
 
         const hashedPassword = await bcrypt.hash(create_password, 10)
@@ -60,7 +72,9 @@ const register = async (req, res) => {
             role,
         })
 
-        logger.info(`Új felhasználó regisztrált: ${username} (${email}), szerep: ${role}`)
+        logger.info(
+            `Új felhasználó regisztrált: ${username} (${email}), szerep: ${role}`
+        )
 
         req.session.user = {
             id: newUser.id,
@@ -82,7 +96,9 @@ const register = async (req, res) => {
             message: 'Szerverhiba történt, próbáld újra!',
             type: 'error',
         }
-        return res.status(500).json({ errors: [{ msg: 'Szerverhiba történt, próbáld újra!' }] })
+        return res
+            .status(500)
+            .json({ errors: [{ msg: 'Szerverhiba történt, próbáld újra!' }] })
     }
 }
 
