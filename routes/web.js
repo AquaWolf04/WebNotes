@@ -1,83 +1,47 @@
 const express = require('express')
 const router = express.Router()
 const csrf = require('csurf')
-const jwt = require('jsonwebtoken')
 const { User } = require('../app/models')
-const authenticateToken = require('../middlewares/authMiddleware')
+const authMiddleware = require('../middlewares/authMiddleware')
 
-const { register, validateRegister } = require('../app/controllers/RegisterController.js')
-const lcontroller = require('../app/controllers/LoginController.js')
-const ncontroller = require('../app/controllers/NotesController.js')
+// ✅ **Kontrollerek importálása**
+const RegisterController = require('../app/controllers/RegisterController.js')
+const AppController = require('../app/controllers/AppController.js')
+const LoginController = require('../app/controllers/LoginController.js')
+const NotesController = require('../app/controllers/NotesController.js')
 
+// ✅ **CSRF védelem beállítása**
 const csrfProtection = csrf({ cookie: true })
 
-// ✅ **Oldalak renderelése**
-router.get('/', (req, res) => res.render('index', { user: req.user }))
+/* ===========================
+        OLDALAK RENDERELÉSE
+   =========================== */
+router.get('/', authMiddleware, (req, res) => {
+    res.render('index', { user: req.session.userId })
+})
+
 router.get('/login', (req, res) => res.render('login'))
 router.get('/register', (req, res) => res.render('register'))
 
-// ✅ **Felhasználói adatok lekérése (védett)**
-router.get('/profile', authenticateToken, async (req, res) => {
-    try {
-        const user = await User.findOne({
-            where: { id: req.user.id },
-            attributes: ['id', 'username', 'name', 'email', 'role'],
-        })
+/* ===========================
+       FELHASZNÁLÓ KEZELÉS
+   =========================== */
+router.post('/login', LoginController.login)
+router.get('/logout', LoginController.logout)
+router.post('/register', csrfProtection, RegisterController.register, RegisterController.validation)
 
-        if (!user) {
-            return res.status(404).json({ success: false, error: 'Felhasználó nem található' })
-        }
+/* ===========================
+       VÉDETT ENDPOINT-OK
+   =========================== */
+router.get('/me', authMiddleware, AppController.me)
+router.get('/notes/list', NotesController.list)
+router.post('/notes/save', csrfProtection, NotesController.save)
 
-        res.json({ success: true, user })
-    } catch (error) {
-        console.error('🔴 Hiba a felhasználó lekérésekor:', error)
-        res.status(500).json({ success: false, error: 'Szerverhiba' })
-    }
-})
-
-// ✅ **Jegyzetek lekérése (védett)**
-router.get('/notes/list', authenticateToken, ncontroller.list)
-
-// ✅ **Jegyzet mentése (védett)**
-router.post('/notes/save', authenticateToken, ncontroller.save)
-
-// ✅ **Bejelentkezés és kijelentkezés**
-router.post('/login', lcontroller.login)
-router.post('/logout', lcontroller.logout)
-
-// ✅ **Regisztráció (CSRF-védelem)**
-router.post('/register', csrfProtection, validateRegister, register)
-
-// ✅ **CSRF Token lekérése**
-router.get('/csrf-token', csrfProtection, authenticateToken, (req, res) => {
+/* ===========================
+        CSRF TOKEN LEKÉRÉS
+   =========================== */
+router.get('/csrf-token', csrfProtection, (req, res) => {
     res.json({ csrfToken: req.csrfToken() })
-})
-
-// ✅ **Access Token frissítés (Refresh Token segítségével)**
-router.post('/refresh', async (req, res) => {
-    // 🔍 **Refresh whitout csrf
-    const { refreshToken } = req.body
-
-    if (!refreshToken) {
-        return res.status(401).json({ success: false, error: 'Nincs érvényes token, jelentkezz be!' })
-    }
-
-    try {
-        const user = await User.findOne({ where: { refreshToken } })
-
-        if (!user) {
-            return res.status(400).json({ success: false, error: 'Hibás token, jelentkezz be!' })
-        }
-
-        const accessToken = jwt.sign({ id: user.id }, process.env.ACCESS_TOKEN_SECRET, {
-            expiresIn: '15m',
-        })
-
-        res.json({ success: true, accessToken })
-    } catch (error) {
-        console.error('🔴 Hiba a token frissítésekor:', error)
-        res.status(500).json({ success: false, error: 'Szerverhiba' })
-    }
 })
 
 module.exports = router

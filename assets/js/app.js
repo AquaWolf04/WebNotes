@@ -1,109 +1,31 @@
 $(document).ready(() => {
-    const TOKEN_REFRESH_THRESHOLD = 60 // 1 perccel a lejárat előtt frissít
-    const CHECK_INTERVAL = 30000 // 30 másodpercenként ellenőrizzük
+    $.ajax({
+        url: '/me',
+        type: 'GET',
+        success: (response) => {
+            if (response.user) {
+                $('#user-avatar').text(response.user.username.charAt(0).toUpperCase())
 
-    const getToken = () => localStorage.getItem('accessToken')
-    const getRefreshToken = () => localStorage.getItem('refreshToken')
+                $('#user-name').text(response.user.username)
 
-    const decodeToken = (token) => {
-        try {
-            return JSON.parse(atob(token.split('.')[1])) // Base64 dekódolás
-        } catch (e) {
-            console.warn('🔴 Hibás token dekódolás:', e)
-            return null
-        }
-    }
+                let roleIcon = ''
+                switch (response.user.role) {
+                    case 'admin':
+                        roleIcon = '<i class="ti ti-shield-check text-danger"></i>'
+                        break
+                    case 'moderator':
+                        roleIcon = '<i class="ti ti-user-check text-warning"></i>'
+                        break
+                    default:
+                        roleIcon = '<i class="ti ti-user text-muted"></i>'
+                }
+                $('#user-role-icon').html(roleIcon)
 
-    const fetchProfile = async () => {
-        try {
-            const response = await $.ajax({
-                type: 'GET',
-                url: '/profile',
-                headers: { Authorization: `Bearer ${getToken()}` },
-            })
-
-            if (response.success) {
-                console.log('🟢 Profil betöltve:', response.user)
-                updateUserUI(response.user)
-            } else {
-                console.warn('🔴 Profil betöltése sikertelen!')
+                $('#user-email').text(response.user.email)
             }
-        } catch (error) {
-            console.warn('🔴 Profil betöltése sikertelen!', error)
-        }
-    }
-
-    const updateUserUI = (user) => {
-        if (!user) return
-
-        document.getElementById('user-avatar').textContent = user.username.charAt(0).toUpperCase()
-        document.getElementById('user-name').textContent = user.name || user.username
-        document.getElementById('user-email').textContent = user.email
-
-        const roleIcon = document.getElementById('user-role-icon')
-        if (user.role === 'admin') {
-            roleIcon.className = 'ti ti-crown'
-        } else if (user.role === 'premium') {
-            roleIcon.className = 'ti ti-star'
-        } else {
-            roleIcon.className = '' // Alapértelmezett, ha nincs speciális rang
-        }
-    }
-
-    const checkTokenExpiration = () => {
-        const token = getToken()
-        if (!token) return redirectToLogin()
-
-        const decoded = decodeToken(token)
-        if (!decoded || !decoded.exp) return redirectToLogin()
-
-        const timeLeft = decoded.exp - Math.floor(Date.now() / 1000)
-        console.log(`🕒 Token lejár: ${timeLeft} másodperc múlva`)
-
-        if (timeLeft < TOKEN_REFRESH_THRESHOLD) refreshAccessToken()
-    }
-
-    const refreshAccessToken = async () => {
-        const refreshToken = getRefreshToken()
-        if (!refreshToken) return redirectToLogin()
-
-        try {
-            const response = await $.ajax({
-                type: 'POST',
-                url: '/refresh',
-                contentType: 'application/json',
-                data: JSON.stringify({ refreshToken }),
-            })
-
-            if (response.success) {
-                localStorage.setItem('accessToken', response.accessToken)
-                console.log('🔄 Token frissítve! Új lejárati idő: 15 perc')
-            } else {
-                console.warn('🔴 Token frissítés sikertelen!')
-                redirectToLogin()
-            }
-        } catch (error) {
-            console.warn('🔴 Token frissítés sikertelen!', error)
-            redirectToLogin()
-        }
-    }
-
-    const redirectToLogin = () => {
-        localStorage.removeItem('accessToken')
-        localStorage.removeItem('refreshToken')
-        Swal.fire({
-            icon: 'error',
-            title: 'A munkamenet lejárt!',
-            text: 'Kérlek, jelentkezz be újra.',
-        }).then(() => (window.location.href = '/login'))
-    }
-
-    const setupTokenRefresh = () => {
-        checkTokenExpiration()
-        setInterval(checkTokenExpiration, CHECK_INTERVAL)
-    }
-
-    // ✅ Indítás
-    setupTokenRefresh()
-    fetchProfile()
+        },
+        error: (xhr, status, error) => {
+            console.error('Hiba történt:', error)
+        },
+    })
 })

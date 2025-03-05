@@ -4,7 +4,7 @@ const { body, validationResult } = require('express-validator')
 const { User } = require('../models')
 
 // ✅ **Regisztráció validálása**
-const validateRegister = [
+const validation = [
     body('last_name').notEmpty().withMessage('A vezetéknév kötelező.'),
     body('first_name').notEmpty().withMessage('A keresztnév kötelező.'),
     body('username').notEmpty().withMessage('A felhasználónév kötelező.'),
@@ -23,37 +23,36 @@ const validateRegister = [
         .withMessage('A jelszavak nem egyeznek.'),
 ]
 
-// ✅ **Regisztráció kezelése**
 const register = async (req, res) => {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
+        req.session.message = {
+            message: 'Hibás adatbevitel!',
+            type: 'error',
+        }
         return res.status(400).json({ errors: errors.array() })
     }
 
     const { last_name, first_name, username, email, create_password } = req.body
 
     try {
-        // 🟢 **Megnézzük, van-e már regisztrált felhasználó**
         const userCount = await User.count()
         const role = userCount === 0 ? 'admin' : 'user'
 
-        // 🟢 **Ellenőrizzük, hogy az e-mail vagy a felhasználónév már létezik-e**
-        const existingUser = await User.findOne({
-            where: {
-                email,
-            },
-        })
+        const existingUser = await User.findOne({ where: { email } })
 
         if (existingUser) {
+            req.session.message = {
+                message: 'A felhasználónév vagy az e-mail cím már foglalt.',
+                type: 'error',
+            }
             return res.status(400).json({ errors: [{ msg: 'A felhasználónév vagy az e-mail cím már foglalt.' }] })
         }
 
-        // 🟢 **Jelszó hash-elése**
         const hashedPassword = await bcrypt.hash(create_password, 10)
         const fullName = `${last_name} ${first_name}`
 
-        // 🟢 **Felhasználó létrehozása**
-        await User.create({
+        const newUser = await User.create({
             name: fullName,
             username,
             email,
@@ -63,16 +62,31 @@ const register = async (req, res) => {
 
         logger.info(`Új felhasználó regisztrált: ${username} (${email}), szerep: ${role}`)
 
+        req.session.user = {
+            id: newUser.id,
+            name: newUser.name,
+            username: newUser.username,
+            email: newUser.email,
+            role: newUser.role,
+        }
+
         req.session.message = {
             message: 'Sikeres regisztráció!',
             type: 'success',
         }
 
-        return res.json({ success: true, redirect: '/login' })
+        return res.json({ success: true, redirect: '/' })
     } catch (error) {
         logger.error(`Hiba történt a regisztráció során: ${error.message}`)
+        req.session.message = {
+            message: 'Szerverhiba történt, próbáld újra!',
+            type: 'error',
+        }
         return res.status(500).json({ errors: [{ msg: 'Szerverhiba történt, próbáld újra!' }] })
     }
 }
 
-module.exports = { register, validateRegister }
+module.exports = {
+    register,
+    validation,
+}

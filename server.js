@@ -6,6 +6,7 @@ const router = require('./routes/web')
 const session = require('express-session')
 const cookieParser = require('cookie-parser')
 const { sequelize } = require('./app/models')
+const SequelizeStore = require('connect-session-sequelize')(session.Store)
 
 const app = express()
 
@@ -15,15 +16,27 @@ const port = process.env.PORT || 3000
 
 app.use(express.static('assets'))
 
-// ✅ Session konfiguráció frissítése
+const sessionStore = new SequelizeStore({
+    db: sequelize,
+    checkExpirationInterval: 15 * 60 * 1000,
+    expiration: 24 * 60 * 60 * 1000,
+})
+
 app.use(
     session({
         secret: process.env.SESSION_SECRET,
-        resave: false, // 🔴 Ha false, akkor nem menti el, ha nincs módosítás!
-        saveUninitialized: true, // 🔴 true legyen, hogy új session mindig mentődjön
-        cookie: { secure: false, maxAge: 60000 }, // 60 másodpercig él a session
+        store: sessionStore,
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+            secure: process.env.NODE_ENV === 'production',
+            httpOnly: true,
+            maxAge: 1000 * 60 * 60 * 1,
+        },
     })
 )
+
+sessionStore.sync()
 
 app.set('view engine', 'ejs')
 
@@ -39,7 +52,6 @@ app.use((req, res, next) => {
     next()
 })
 
-// ✅ Session törlése csak akkor, ha már megjelent az oldalon
 app.use((req, res, next) => {
     if (req.session && req.session.message) {
         console.log('✅ Session üzenet törlése:', req.session.message)

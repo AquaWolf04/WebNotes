@@ -1,46 +1,62 @@
-const { Note, Tag, NoteTag } = require('../models')
+const { Note, Tag, User, NoteTag } = require('../models')
 const { Op } = require('sequelize')
 
 const save = async (req, res) => {
-    const { notes } = req.body
-    const user = req.session.user
-
-    if (!user || !user.id) {
-        return res.status(401).json({ status: 'error', message: 'Unauthorized' })
-    }
-
-    if (!notes) {
-        return res.status(400).json({ status: 'error', message: 'Notes are required' })
-    }
-
     try {
-        const decodedNotes = JSON.parse(notes)
-        if (decodedNotes.length === 0) {
+        const { notes } = req.body
+
+        // 🔴 **Ellenőrizzük, hogy a felhasználó be van-e jelentkezve**
+        const user = await User.findByPk(req.session.userId, { attributes: ['id'] })
+        if (!user) {
+            return res.status(401).json({ status: 'error', message: 'Unauthorized' })
+        }
+
+        // 🔴 **Ellenőrizzük, hogy a jegyzetek léteznek és nem üresek**
+        if (!notes || (Array.isArray(notes) && notes.length === 0)) {
             return res.status(400).json({ status: 'error', message: 'Notes are required' })
         }
 
-        for (const noteData of decodedNotes) {
-            const newNote = await Note.create({
-                user_id: user.id,
-                title: noteData.title,
-                content: noteData.content,
-                creation_date: noteData.createdAt,
-                modification_date: noteData.createdAt,
-            })
+        // 🔵 **Ha a notes JSON stringként érkezik, akkor parsoljuk**
+        const decodedNotes = typeof notes === 'string' ? JSON.parse(notes) : notes
+        if (!Array.isArray(decodedNotes) || decodedNotes.length === 0) {
+            return res.status(400).json({ status: 'error', message: 'Notes are required' })
+        }
 
-            if (noteData.tags && noteData.tags.length > 0) {
-                const tagNames = noteData.tags.map((tag) => tag.trim())
+        // 🟢 **Tömeges jegyzet beszúrás**
+        const notesToInsert = decodedNotes.map((note) => ({
+            user_id: user.id,
+            title: note.title,
+            content: note.content,
+            creation_date: note.createdAt || new Date(),
+            modification_date: note.createdAt || new Date(),
+        }))
+        const createdNotes = await Note.bulkCreate(notesToInsert, { returning: true })
 
-                // Új tag-ek létrehozása, ha még nem léteznek
-                const tags = await Promise.all(
-                    tagNames.map(async (tagName) => {
-                        const [tag] = await Tag.findOrCreate({ where: { name: tagName } })
-                        return tag
-                    })
-                )
+        // 🟢 **Címke (tag) kezelés**
+        const tagNames = new Set()
+        decodedNotes.forEach((note) => {
+            if (note.tags) {
+                note.tags.forEach((tag) => tagNames.add(tag.trim()))
+            }
+        })
 
-                // Kapcsolatok mentése a NoteTag táblába
-                await newNote.addTags(tags)
+        if (tagNames.size > 0) {
+            // 🟢 **Létező címkék lekérése és új címkék létrehozása**
+            const existingTags = await Tag.findAll({ where: { name: Array.from(tagNames) } })
+            const existingTagNames = existingTags.map((tag) => tag.name)
+            const newTags = Array.from(tagNames).filter((tag) => !existingTagNames.includes(tag))
+
+            // Csak az új címkéket hozzuk létre
+            const createdTags = await Tag.bulkCreate(
+                newTags.map((name) => ({ name })),
+                { returning: true }
+            )
+            const allTags = [...existingTags, ...createdTags]
+
+            // 🟢 **Kapcsolatok létrehozása a jegyzetek és címkék között**
+            for (let i = 0; i < createdNotes.length; i++) {
+                const noteTags = decodedNotes[i].tags.map((tag) => allTags.find((t) => t.name === tag))
+                await createdNotes[i].addTags(noteTags)
             }
         }
 
@@ -52,7 +68,10 @@ const save = async (req, res) => {
 }
 
 const list = async (req, res) => {
-    const user = req.session.user
+    //const user = req.session.userId
+    const user = await User.findByPk(req.session.userId, {
+        attributes: ['id'],
+    })
 
     if (!user || !user.id) {
         return res.status(401).json({ status: 'error', message: 'Unauthorized' })
