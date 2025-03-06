@@ -29,3 +29,7 @@ $(document).ready(() => {
         },
     })
 })
+
+function upgradeToPro() {
+    alert('Jelenlen nincs lehetőség a Pro csomagra való frissítésre.')
+}

@@ -53,10 +53,16 @@ const save = async (req, res) => {
             )
             const allTags = [...existingTags, ...createdTags]
 
-            // 🟢 **Kapcsolatok létrehozása a jegyzetek és címkék között**
+            // 🟢 **Kapcsolatok létrehozása a jegyzetek és címkék között (duplikációk elkerülése)**
             for (let i = 0; i < createdNotes.length; i++) {
-                const noteTags = decodedNotes[i].tags.map((tag) => allTags.find((t) => t.name === tag))
-                await createdNotes[i].addTags(noteTags)
+                const noteTags = decodedNotes[i].tags.map((tag) => allTags.find((t) => t.name === tag)).filter(Boolean)
+
+                for (const tag of noteTags) {
+                    const existingRelation = await createdNotes[i].hasTag(tag)
+                    if (!existingRelation) {
+                        await createdNotes[i].addTag(tag)
+                    }
+                }
             }
         }
 

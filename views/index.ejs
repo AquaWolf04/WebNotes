@@ -226,7 +226,9 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Címkék</label>
-                                <input type="text" class="form-control" id="noteTags" name="tags" placeholder="Címkék vesszővel elválasztva" />
+                                <div id="tag-container" class="form-control d-flex flex-wrap align-items-center gap-2 p-2"></div>
+                                <input type="text" class="form-control mt-2" id="tagInput" placeholder="Írj be egy címkét és nyomj ENTER-t vagy ','" />
+                                <input type="hidden" name="tags" id="hiddenTags" />
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -240,10 +242,11 @@
                 </div>
             </div>
         </div>
+
         <script src="/js/tabler.min.js"></script>
         <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.10.1/dist/sweetalert2.all.min.js"></script>
-        <script src="/js/tinymce/tinymce.min.js"></script>
+        <script src="/js/editor/hugerte.min.js"></script>
         <script src="/js/app.js"></script>
         <script>
             const Toast = Swal.mixin({
@@ -259,15 +262,75 @@
             })
         </script>
         <script>
-            tinymce.init({
-                selector: '#noteContent',
-                license_key: 'gpl',
-                height: 300,
-                language: 'hu_HU',
-                menubar: false,
-                plugins: ['advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview', 'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen', 'insertdatetime', 'media', 'table', 'wordcount', 'emoticons'],
-                toolbar: 'undo redo | blocks | ' + 'emoticons |' + 'bold italic backcolor | alignleft aligncenter ' + 'alignright alignjustify | bullist numlist outdent indent | ' + 'removeformat',
-                content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif; font-size: 14px; }',
+            document.addEventListener('DOMContentLoaded', () => {
+                const tagInput = document.getElementById('tagInput')
+                const tagContainer = document.getElementById('tag-container')
+                const hiddenTags = document.getElementById('hiddenTags')
+                let tags = []
+
+                function updateHiddenInput() {
+                    hiddenTags.value = tags.join(',')
+                }
+
+                function createTagElement(tag) {
+                    const tagElement = document.createElement('div')
+                    tagElement.classList.add('badge', 'bg-primary', 'me-1', 'p-2', 'text-white')
+                    tagElement.textContent = tag
+
+                    const removeBtn = document.createElement('span')
+                    removeBtn.textContent = ' ✖'
+                    removeBtn.style.cursor = 'pointer'
+                    removeBtn.onclick = () => {
+                        tags = tags.filter((t) => t !== tag)
+                        updateHiddenInput()
+                        tagElement.remove()
+                    }
+
+                    tagElement.appendChild(removeBtn)
+                    tagContainer.appendChild(tagElement)
+                }
+
+                tagInput.addEventListener('keydown', (event) => {
+                    if (event.key === 'Enter' || event.key === ',') {
+                        event.preventDefault()
+                        const tag = tagInput.value.trim()
+                        if (tag && !tags.includes(tag)) {
+                            tags.push(tag)
+                            createTagElement(tag)
+                            updateHiddenInput()
+                        }
+                        tagInput.value = ''
+                    }
+                })
+
+                tagInput.addEventListener('keydown', (event) => {
+                    if (event.key === 'Backspace' && tagInput.value === '' && tags.length > 0) {
+                        const lastTag = tags.pop()
+                        updateHiddenInput()
+                        ;[...tagContainer.getElementsByClassName('badge')].pop().remove()
+                    }
+                })
+            })
+        </script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                let options = {
+                    selector: '#noteContent',
+                    height: 300,
+                    language: 'hu_HU',
+                    menubar: true,
+                    statusbar: false,
+                    license_key: 'gpl',
+                    plugins: ['advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview', 'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen', 'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'],
+                    toolbar: 'undo redo | formatselect | ' + 'bold italic backcolor | alignleft aligncenter ' + 'alignright alignjustify | bullist numlist outdent indent | ' + 'removeformat',
+                    content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif; font-size: 14px; -webkit-font-smoothing: antialiased; }',
+                }
+                if (localStorage.getItem('theme') === 'dark') {
+                    options.skin = 'oxide-dark'
+                    options.content_css = 'dark'
+                }
+                hugerte.init(options)
             })
 
             let notes = []
@@ -299,67 +362,67 @@
 
                 if (notesToRender.length === 0) {
                     noteList.innerHTML = `
-            <div class="col-12">
-              <div class="card card-body text-center">
-                <i class="ti ti-notes-off icon-lg text-muted mb-3"></i>
-                <h3>Nincsenek jegyzetek</h3>
-                <p class="text-muted">Hozz létre egy új jegyzetet a "+ Új jegyzet" gombbal!</p>
-              </div>
-            </div>`
+                                     <div class="col-12">
+                                       <div class="card card-body text-center">
+                                         <i class="ti ti-notes-off icon-lg text-muted mb-3"></i>
+                                         <h3>Nincsenek jegyzetek</h3>
+                                         <p class="text-muted">Hozz létre egy új jegyzetet a "+ Új jegyzet" gombbal!</p>
+                                       </div>
+                                     </div>`
                     return
                 }
 
                 noteList.innerHTML = notesToRender
                     .map(
                         (note) => `
-          <div class="col-md-4">
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title">${escapeHtml(note.title)}</h3>
-                <div class="card-actions">
-                  <div class="dropdown">
-                    <a href="#" class="btn-action dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                      <i class="ti ti-dots-vertical"></i>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-end">
-                      <a class="dropdown-item" href="#" onclick="editNote(${note.id})">
-                        <i class="ti ti-edit icon dropdown-item-icon"></i>
-                        Szerkesztés
-                      </a>
-                      <a class="dropdown-item text-danger" href="#" onclick="deleteNote(${note.id})">
-                        <i class="ti ti-trash icon dropdown-item-icon"></i>
-                        Törlés
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="card-body">
-                <div class="text-muted mb-3">
-                  ${note.createdAt ? new Date(note.createdAt).toLocaleDateString('hu-HU') : 'Nincs dátum'}
-                </div>
-                <div class="card-text">
-                  ${note.content}
-                </div>
-                ${
-                    note.tags && note.tags.length > 0
-                        ? `
-                  <div class="mt-3">
-                    ${note.tags
-                        .map(
-                            (tag) => `
-                      <span class="badge bg-blue-lt me-1">${escapeHtml(tag)}</span>
-                    `
-                        )
-                        .join('')}
-                  </div>
-                `
-                        : ''
-                }
-              </div>
-            </div>
-          </div>
-        `
+                                   <div class="col-md-4">
+                                     <div class="card">
+                                       <div class="card-header">
+                                         <h3 class="card-title">${escapeHtml(note.title)}</h3>
+                                         <div class="card-actions">
+                                           <div class="dropdown">
+                                             <a href="#" class="btn-action dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                               <i class="ti ti-dots-vertical"></i>
+                                             </a>
+                                             <div class="dropdown-menu dropdown-menu-end">
+                                               <a class="dropdown-item" href="#" onclick="editNote(${note.id})">
+                                                 <i class="ti ti-edit icon dropdown-item-icon"></i>
+                                                 Szerkesztés
+                                               </a>
+                                               <a class="dropdown-item text-danger" href="#" onclick="deleteNote(${note.id})">
+                                                 <i class="ti ti-trash icon dropdown-item-icon"></i>
+                                                 Törlés
+                                               </a>
+                                             </div>
+                                           </div>
+                                         </div>
+                                       </div>
+                                       <div class="card-body">
+                                         <div class="text-muted mb-3">
+                                           ${note.createdAt ? new Date(note.createdAt).toLocaleDateString('hu-HU') : 'Nincs dátum'}
+                                         </div>
+                                         <div class="card-text">
+                                           ${note.content}
+                                         </div>
+                                         ${
+                                             note.tags && note.tags.length > 0
+                                                 ? `
+                                           <div class="mt-3">
+                                             ${note.tags
+                                                 .map(
+                                                     (tag) => `
+                                               <span class="badge bg-blue-lt me-1">${escapeHtml(tag)}</span>
+                                             `
+                                                 )
+                                                 .join('')}
+                                           </div>
+                                         `
+                                                 : ''
+                                         }
+                                       </div>
+                                     </div>
+                                   </div>
+                                 `
                     )
                     .join('')
             }
@@ -414,7 +477,7 @@
                         await loadNotes()
                         noteModal.hide()
                         form.reset()
-                        tinymce.get('noteContent').setContent('')
+                        hugerte.get('noteContent').setContent('')
                         Toast.fire({
                             icon: 'success',
                             title: 'Jegyzet mentve!',
@@ -448,7 +511,7 @@
 
             function openNoteModal() {
                 document.getElementById('noteForm').reset()
-                tinymce.get('noteContent').setContent('')
+                hugerte.get('noteContent').setContent('')
                 noteModal.show()
             }
 
@@ -457,7 +520,7 @@
                 if (!note) return
 
                 document.getElementById('noteTitle').value = note.title
-                tinymce.get('noteContent').setContent(note.content)
+                hugerte.get('noteContent').setContent(note.content)
                 document.getElementById('noteTags').value = note.tags.join(', ')
                 noteModal.show()
             }
