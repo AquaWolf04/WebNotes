@@ -9,100 +9,7 @@
         <link href="/css/custom.css" rel="stylesheet" />
         <link href="https://cdn.jsdelivr.net/npm/sweetalert2@7.12.15/dist/sweetalert2.min.css" rel="stylesheet" />
     </head>
-    <style>
-        .promo-banner {
-            background: linear-gradient(120deg, rgba(30, 41, 59, 0.8) 0%, rgba(44, 82, 130, 0.9) 100%);
-            border-radius: 8px;
-            border: 1px solid rgba(88, 133, 208, 0.2);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            padding: 16px 20px;
-            margin-bottom: 24px;
-            position: relative;
-        }
-
-        .promo-banner::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(circle at 30% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 80%);
-            z-index: 1;
-        }
-
-        .promo-icon {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            background: rgba(99, 102, 241, 0.2);
-            border-radius: 8px;
-            margin-right: 16px;
-            color: #94a3b8;
-            position: relative;
-        }
-
-        .promo-icon i {
-            font-size: 20px;
-            color: #f8fafc;
-            position: relative;
-            z-index: 2;
-        }
-
-        .promo-icon::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.5) 0%, rgba(56, 189, 248, 0.3) 100%);
-            z-index: 1;
-        }
-
-        .promo-title {
-            font-weight: 600;
-            font-size: 16px;
-            color: #f8fafc;
-            margin-bottom: 4px;
-            display: flex;
-            align-items: center;
-        }
-
-        .sparkle {
-            margin-left: 6px;
-            font-size: 16px;
-        }
-
-        .promo-desc {
-            font-size: 14px;
-            color: #94a3b8;
-            margin: 0;
-        }
-
-        .promo-btn {
-            background: rgba(255, 255, 255, 0.1);
-            color: #f8fafc;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 6px;
-            padding: 8px 16px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            position: relative;
-            z-index: 2;
-        }
-
-        .promo-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: rgba(255, 255, 255, 0.3);
-            transform: translateY(-1px);
-        }
-
-        .promo-btn i {
-            margin-left: 8px;
-            font-size: 14px;
-        }
-    </style>
+    <style></style>
     <body>
         <div class="page">
             <header class="navbar navbar-expand-md navbar-light d-print-none">
@@ -203,11 +110,41 @@
                         <div class="row row-cards" id="noteList"> </div>
                     </div>
                 </div>
+                <footer class="footer footer-transparent d-print-none">
+                    <div class="container-xl">
+                        <div class="row text-center align-items-center flex-row-reverse">
+                            <div class="col-lg-auto ms-lg-auto">
+                                <ul class="list-inline list-inline-dots mb-0">
+                                    <li class="list-inline-item"><a href="https://tabler.io/docs" target="_blank" class="link-secondary" rel="noopener">Documentation</a></li>
+                                    <li class="list-inline-item"><a href="./license.html" class="link-secondary">License</a></li>
+                                    <li class="list-inline-item"><a href="https://github.com/tabler/tabler" target="_blank" class="link-secondary" rel="noopener">Source code</a></li>
+                                    <li class="list-inline-item">
+                                        <a href="https://github.com/sponsors/codecalm" target="_blank" class="link-secondary" rel="noopener">
+                                            <!-- Download SVG icon from http://tabler-icons.io/i/heart -->
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon text-pink icon-filled icon-inline" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" />
+                                            </svg>
+                                            Sponsor
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-12 col-lg-auto mt-3 mt-lg-0">
+                                <ul class="list-inline list-inline-dots mb-0">
+                                    <li class="list-inline-item"> Készítette Lupu Carlos (<a href="https://aquawolf04.com" class="link-secondary">aquawolf04.com</a>) </li>
+                                    <li class="list-inline-item"> Felasznált sablon: <a href="https://tabler.io" class="link-secondary" rel="noopener">Tabler</a> </li>
+                                    <li class="list-inline-item"> Verzió: <span id="app-version"></span> </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
             </div>
         </div>
 
         <div class="modal modal-blur fade" id="noteModal" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <form id="noteForm" onsubmit="saveNote(event)">
                         <div class="modal-header">
@@ -248,19 +185,6 @@
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.10.1/dist/sweetalert2.all.min.js"></script>
         <script src="/js/editor/hugerte.min.js"></script>
         <script src="/js/app.js"></script>
-        <script>
-            const Toast = Swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true,
-                didOpen: (toast) => {
-                    toast.onmouseenter = Swal.stopTimer
-                    toast.onmouseleave = Swal.resumeTimer
-                },
-            })
-        </script>
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 const tagInput = document.getElementById('tagInput')
@@ -362,67 +286,72 @@
 
                 if (notesToRender.length === 0) {
                     noteList.innerHTML = `
-                                     <div class="col-12">
-                                       <div class="card card-body text-center">
-                                         <i class="ti ti-notes-off icon-lg text-muted mb-3"></i>
-                                         <h3>Nincsenek jegyzetek</h3>
-                                         <p class="text-muted">Hozz létre egy új jegyzetet a "+ Új jegyzet" gombbal!</p>
-                                       </div>
-                                     </div>`
+                                               <div class="col-12">
+                                                 <div class="card card-body text-center">
+                                                   <h3>Nincsenek jegyzetek</h3>
+                                                   <p class="text-muted">Hozz létre egy új jegyzetet a "+ Új jegyzet" gombbal!</p>
+                                                 </div>
+                                               </div>`
                     return
                 }
 
                 noteList.innerHTML = notesToRender
                     .map(
                         (note) => `
-                                   <div class="col-md-4">
-                                     <div class="card">
-                                       <div class="card-header">
-                                         <h3 class="card-title">${escapeHtml(note.title)}</h3>
-                                         <div class="card-actions">
-                                           <div class="dropdown">
-                                             <a href="#" class="btn-action dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                               <i class="ti ti-dots-vertical"></i>
-                                             </a>
-                                             <div class="dropdown-menu dropdown-menu-end">
-                                               <a class="dropdown-item" href="#" onclick="editNote(${note.id})">
-                                                 <i class="ti ti-edit icon dropdown-item-icon"></i>
-                                                 Szerkesztés
-                                               </a>
-                                               <a class="dropdown-item text-danger" href="#" onclick="deleteNote(${note.id})">
-                                                 <i class="ti ti-trash icon dropdown-item-icon"></i>
-                                                 Törlés
-                                               </a>
-                                             </div>
-                                           </div>
-                                         </div>
-                                       </div>
-                                       <div class="card-body">
-                                         <div class="text-muted mb-3">
-                                           ${note.createdAt ? new Date(note.createdAt).toLocaleDateString('hu-HU') : 'Nincs dátum'}
-                                         </div>
-                                         <div class="card-text">
-                                           ${note.content}
-                                         </div>
-                                         ${
-                                             note.tags && note.tags.length > 0
-                                                 ? `
-                                           <div class="mt-3">
-                                             ${note.tags
-                                                 .map(
-                                                     (tag) => `
-                                               <span class="badge bg-blue-lt me-1">${escapeHtml(tag)}</span>
-                                             `
-                                                 )
-                                                 .join('')}
-                                           </div>
-                                         `
-                                                 : ''
-                                         }
-                                       </div>
-                                     </div>
-                                   </div>
-                                 `
+    <div class="col-md-4 mb-4">
+      <div class="card card-sm h-100">
+        <div class="card-header">
+          <div class="d-flex justify-content-between align-items-center w-100">
+            <h3 class="card-title text-truncate mb-0" title="${escapeHtml(note.title)}">${escapeHtml(note.title)}</h3>
+            <div class="card-actions">
+              <div class="dropdown">
+                <a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="ti ti-dots-vertical"></i>
+                </a>
+                <div class="dropdown-menu dropdown-menu-end">
+                  <a class="dropdown-item" href="#" onclick="editNote(${note.id})">
+                    <i class="ti ti-edit icon dropdown-item-icon"></i>
+                    Szerkesztés
+                  </a>
+                  <a class="dropdown-item text-danger" href="#" onclick="deleteNote(${note.id})">
+                    <i class="ti ti-trash icon dropdown-item-icon"></i>
+                    Törlés
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body d-flex flex-column">
+          <div class="card-text flex-grow-1 mb-3">
+            ${note.content}
+          </div>
+          <div class="mt-auto">
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="text-muted small">
+                <i class="ti ti-clock-hour-4 me-1"></i> ${note.createdAt ? new Date(note.createdAt).toLocaleDateString('hu-HU') : 'Nincs dátum'}
+              </div>
+            </div>
+            ${
+                note.tags && note.tags.length > 0
+                    ? `
+                <div class="mt-2">
+                  ${note.tags
+                      .map(
+                          (tag) => `
+                      <span class="badge bg-primary-lt me-1 mb-1">${escapeHtml(tag)}</span>
+                    `
+                      )
+                      .join('')}
+                </div>
+                `
+                    : ''
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  `
                     )
                     .join('')
             }
@@ -445,7 +374,7 @@
                 event.preventDefault()
                 const form = event.target
                 const formData = new FormData(form)
-                const content = tinymce.get('noteContent').getContent()
+                const content = hugerte.get('noteContent').getContent()
                 const tags = formData
                     .get('tags')
                     .split(',')
@@ -502,11 +431,17 @@
             }
 
             function showSuccess(message) {
-                alert(message) // TODO: Implement Tabler toast
+                Toast.fire({
+                    icon: 'success',
+                    title: message,
+                })
             }
 
             function showError(message) {
-                alert(message) // TODO: Implement Tabler toast
+                Toast.fire({
+                    icon: 'error',
+                    title: message,
+                })
             }
 
             function openNoteModal() {
@@ -552,6 +487,28 @@
                 const savedTheme = localStorage.getItem('theme') || 'light'
                 document.body.setAttribute('data-bs-theme', savedTheme)
             })
+        </script>
+        <script>
+            // edit note
+            function editNote(id) {
+                const note = notes.find((n) => n.id === id)
+                if (!note) return
+
+                document.getElementById('noteTitle').value = note.title
+                hugerte.get('noteContent').setContent(note.content)
+                document.getElementById('hiddenTags').value = note.tags.join(',')
+                document.getElementById('tag-container').innerHTML = note.tags
+                    .map(
+                        (tag) => `
+                    <div class="badge bg-primary me-1 p-2 text-white">
+                        ${tag}
+                        <span style="cursor: pointer;" onclick="removeTag('${tag}')">✖</span>
+                    </div>
+                `
+                    )
+                    .join('')
+                noteModal.show()
+            }
         </script>
     </body>
 </html>

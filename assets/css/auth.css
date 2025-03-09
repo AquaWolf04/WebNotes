@@ -1,7 +1,7 @@
 @import url('https://rsms.me/inter/inter.css');
 :root {
-    --tblr-font-sans-serif: 'Inter Var', -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto,
-        Helvetica Neue, sans-serif;
+    --tblr-font-sans-serif: 'Inter Var', -apple-system, BlinkMacSystemFont,
+        San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
 }
 body {
     font-feature-settings: 'cv03', 'cv04', 'cv11';
@@ -27,4 +27,76 @@ body {
 .ti {
     font-size: 1.25rem;
     margin-right: 0.25rem;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spinner-rotate {
+    animation: spin 1s linear infinite;
+}
+
+/* Hibaüzenetek modern stílusban */
+.error-message {
+    color: #ff4d4d;
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.error-message::before {
+    content: '⚠';
+    font-size: 16px;
+    color: #ff4d4d;
+}
+
+/* Animáció az eltűnéshez */
+.error-message.hidden {
+    opacity: 0;
+    transform: translateY(-5px);
+}
+
+/* Hiba esetén az input mező piros szegélyt kap */
+.input-error {
+    border: 2px solid #ff4d4d !important;
+    box-shadow: 0 0 5px rgba(255, 77, 77, 0.5);
+    transition: border 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+/* Ha a felhasználó elkezd írni, visszaáll az alapértelmezett állapotba */
+.input-error:focus {
+    border: 2px solid #007bff !important;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Figyelmeztető ikon megjelenítése a jobb oldalon */
+.input-wrapper {
+    position: relative;
+}
+
+.error-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #ff4d4d;
+    font-size: 18px;
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.hidden-icon {
+    opacity: 0;
 }

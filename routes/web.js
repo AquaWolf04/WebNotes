@@ -1,52 +1,62 @@
 const express = require('express')
-const router = express.Router()
 const csrf = require('csurf')
-const { User } = require('../app/models')
 const authMiddleware = require('../middlewares/authMiddleware')
 
-// ✅ **Kontrollerek importálása**
+// ✅ Kontrollerek importálása
 const RegisterController = require('../app/controllers/RegisterController.js')
 const AppController = require('../app/controllers/AppController.js')
 const LoginController = require('../app/controllers/LoginController.js')
 const NotesController = require('../app/controllers/NotesController.js')
 
-// ✅ **CSRF védelem beállítása**
+// ✅ CSRF védelem
 const csrfProtection = csrf({ cookie: true })
 
-/* ===========================
-        OLDALAK RENDERELÉSE
-   =========================== */
-router.get('/', authMiddleware, (req, res) => {
+// ✅ Router példány létrehozása
+const router = express.Router()
+
+// ✅ Nevesített útvonalak táblázata
+const routes = {
+    home: '/',
+    login: '/login',
+    register: '/register',
+    logout: '/logout',
+    version: '/api/version',
+    me: '/api/me',
+    notesList: '/notes/list',
+    notesSave: '/notes/save',
+    csrfToken: '/csrf-token',
+}
+
+// ✅ Oldalak renderelése
+router.get(routes.home, authMiddleware, (req, res) => {
     res.render('index', { user: req.session.userId })
 })
 
-router.get('/login', (req, res) => res.render('login'))
-router.get('/register', (req, res) => res.render('register'))
+router.get(routes.login, (req, res) => res.render('login'))
+router.get(routes.register, (req, res) => res.render('register'))
 
-/* ===========================
-       FELHASZNÁLÓ KEZELÉS
-   =========================== */
-router.post('/login', LoginController.login)
-router.get('/logout', LoginController.logout)
+// ✅ Felhasználó kezelés
+router.post(routes.login, LoginController.login)
+router.get(routes.logout, LoginController.logout)
 router.post(
-    '/register',
+    routes.register,
     RegisterController.validation,
     csrfProtection,
     RegisterController.register
 )
 
-/* ===========================
-       VÉDETT ENDPOINT-OK
-   =========================== */
-router.get('/me', authMiddleware, AppController.me)
-router.get('/notes/list', NotesController.list)
-router.post('/notes/save', csrfProtection, NotesController.save)
+// ✅ API végpontok
+router.get(routes.version, AppController.getVer)
+router.get(routes.me, authMiddleware, AppController.me)
 
-/* ===========================
-        CSRF TOKEN LEKÉRÉS
-   =========================== */
-router.get('/csrf-token', csrfProtection, (req, res) => {
+// ✅ Védett végpontok
+router.get(routes.notesList, NotesController.list)
+router.post(routes.notesSave, csrfProtection, NotesController.save)
+
+// ✅ CSRF Token lekérés
+router.get(routes.csrfToken, csrfProtection, (req, res) => {
     res.json({ csrfToken: req.csrfToken() })
 })
 
-module.exports = router
+// ✅ Exportálás
+module.exports = { router, routes }

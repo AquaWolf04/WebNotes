@@ -1,118 +1,107 @@
-@keyframes spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+/*
+Innentől a manipulációk a index.ejs re oldalra vonatkoznak  
+*/
+.promo-banner {
+    background: linear-gradient(
+        120deg,
+        rgba(30, 41, 59, 0.8) 0%,
+        rgba(44, 82, 130, 0.9) 100%
+    );
+    border-radius: 8px;
+    border: 1px solid rgba(88, 133, 208, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    position: relative;
 }
 
-.spinner-rotate {
-    animation: spin 1s linear infinite;
+.promo-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+        circle at 30% 50%,
+        rgba(99, 102, 241, 0.15) 0%,
+        transparent 80%
+    );
+    z-index: 1;
 }
 
-/* Hibaüzenetek modern stílusban */
-.error-message {
-    color: #ff4d4d;
-    font-size: 14px;
-    font-weight: 500;
-    margin-top: 4px;
+.promo-icon {
     display: flex;
     align-items: center;
-    gap: 6px;
-    opacity: 1;
-    transform: translateY(0);
-    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
-}
-
-.error-message::before {
-    content: '⚠';
-    font-size: 16px;
-    color: #ff4d4d;
-}
-
-/* Animáció az eltűnéshez */
-.error-message.hidden {
-    opacity: 0;
-    transform: translateY(-5px);
-}
-
-/* Hiba esetén az input mező piros szegélyt kap */
-.input-error {
-    border: 2px solid #ff4d4d !important;
-    box-shadow: 0 0 5px rgba(255, 77, 77, 0.5);
-    transition: border 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-}
-
-/* Ha a felhasználó elkezd írni, visszaáll az alapértelmezett állapotba */
-.input-error:focus {
-    border: 2px solid #007bff !important;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-}
-
-/* Figyelmeztető ikon megjelenítése a jobb oldalon */
-.input-wrapper {
-    position: relative;
-}
-
-.error-icon {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #ff4d4d;
-    font-size: 18px;
-    opacity: 1;
-    transition: opacity 0.3s ease-in-out;
-}
-
-.hidden-icon {
-    opacity: 0;
-}
-
-/* Közös beállítások */
-#admin,
-#premium {
-    position: relative;
-    padding: 3px 5px;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: rgba(99, 102, 241, 0.2);
     border-radius: 8px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    overflow: hidden;
+    margin-right: 16px;
+    color: #94a3b8;
+    position: relative;
 }
 
-#admin {
-    color: #fff;
-    background: linear-gradient(45deg, #ff0000, #a00000);
-    animation: flicker 1.5s infinite alternate;
+.promo-icon i {
+    font-size: 20px;
+    color: #f8fafc;
+    position: relative;
+    z-index: 2;
 }
 
-#premium {
-    color: #fff;
-    background: linear-gradient(45deg, #ffcc00, #ff8c00);
-    animation: glow 1.5s infinite alternate;
+.promo-icon::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(99, 102, 241, 0.5) 0%,
+        rgba(56, 189, 248, 0.3) 100%
+    );
+    z-index: 1;
 }
 
-@keyframes flicker {
-    0% {
-        box-shadow: 0 0 10px rgba(255, 0, 0, 0.4);
-    }
-    100% {
-        box-shadow: 0 0 20px rgba(255, 0, 0, 0.9);
-    }
+.promo-title {
+    font-weight: 600;
+    font-size: 16px;
+    color: #f8fafc;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
 }
 
-@keyframes glow {
-    0% {
-        box-shadow: 0 0 10px rgba(255, 165, 0, 0.4);
-    }
-    100% {
-        box-shadow: 0 0 20px rgba(255, 165, 0, 1);
-    }
+.sparkle {
+    margin-left: 6px;
+    font-size: 16px;
 }
 
-#admin:hover,
-#premium:hover {
-    transform: scale(1.08);
-    transition: 0.3s ease-in-out;
+.promo-desc {
+    font-size: 14px;
+    color: #94a3b8;
+    margin: 0;
+}
+
+.promo-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: #f8fafc;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+}
+
+.promo-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+.promo-btn i {
+    margin-left: 8px;
+    font-size: 14px;
 }

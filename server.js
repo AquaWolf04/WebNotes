@@ -2,18 +2,16 @@ const express = require('express')
 const dotenv = require('dotenv').config()
 const cors = require('cors')
 const csrf = require('csurf')
-const router = require('./routes/web')
+const { router } = require('./routes/web')
 const session = require('express-session')
 const cookieParser = require('cookie-parser')
 const { sequelize } = require('./app/models')
 const SequelizeStore = require('connect-session-sequelize')(session.Store)
 
 const app = express()
-
-app.use(cookieParser())
-
 const port = process.env.PORT || 3000
 
+app.use(cookieParser())
 app.use(express.static('assets'))
 
 const sessionStore = new SequelizeStore({
@@ -29,14 +27,18 @@ app.use(
         resave: false,
         saveUninitialized: false,
         cookie: {
-            secure: process.env.NODE_ENV === 'production',
+            secure: process.env.NODE_ENV === 'production' ? true : false,
             httpOnly: true,
+            sameSite: 'lax',
             maxAge: 1000 * 60 * 60 * 1,
         },
     })
 )
 
-sessionStore.sync()
+// Csak fejlesztési környezetben szinkronizáljuk
+if (process.env.NODE_ENV !== 'production') {
+    sessionStore.sync()
+}
 
 app.set('view engine', 'ejs')
 
@@ -44,14 +46,21 @@ app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
-const csrfProtection = csrf({ cookie: true })
-app.use(csrfProtection)
-
+// ✅ CSRF csak a nem-API kérésekre
 app.use((req, res, next) => {
-    res.locals.csrfToken = req.csrfToken()
+    if (req.path.startsWith('/api/')) {
+        return next()
+    }
+    csrf({ cookie: true })(req, res, next)
+})
+
+// ✅ CSRF token beállítása a nézetekhez
+app.use((req, res, next) => {
+    res.locals.csrfToken = req.csrfToken ? req.csrfToken() : ''
     next()
 })
 
+// ✅ Session üzenetek törlése
 app.use((req, res, next) => {
     if (req.session && req.session.message) {
         console.log('✅ Session üzenet törlése:', req.session.message)
@@ -60,6 +69,7 @@ app.use((req, res, next) => {
     next()
 })
 
+// ✅ Adatbázis kapcsolat inicializálása
 const initDB = async () => {
     try {
         await sequelize.authenticate()
@@ -71,7 +81,18 @@ const initDB = async () => {
 
 initDB()
 
+// ✅ Router beállítása
 app.use('/', router)
+
+// ✅ Hibakezelő middleware
+app.use((req, res, next) => {
+    res.status(404).render('404', { url: req.originalUrl })
+})
+
+app.use((err, req, res, next) => {
+    console.error('❌ Szerverhiba:', err)
+    res.status(500).json({ error: 'Belső szerverhiba történt' })
+})
 
 app.listen(port, () => {
     console.log(`🚀 | A szerver fut a http://localhost:${port} címen!`)
