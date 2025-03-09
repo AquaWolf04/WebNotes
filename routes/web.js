@@ -20,43 +20,48 @@ const routes = {
     login: '/login',
     register: '/register',
     logout: '/logout',
-    version: '/api/version',
-    me: '/api/me',
-    notesList: '/notes/list',
-    notesSave: '/notes/save',
-    csrfToken: '/csrf-token',
+    version: '/version',
+    me: '/me',
+    notesById: '/:id',
+    notesList: '/list',
+    notesSave: '/save',
 }
 
-// ✅ Oldalak renderelése
+const prefix = {
+    api: '/api',
+    notes: '/notes',
+}
+
+// ✅ Oldal renderelése
 router.get(routes.home, authMiddleware, (req, res) => {
     res.render('index', { user: req.session.userId })
 })
 
+// ✅ Autehntikáció kezelése
 router.get(routes.login, (req, res) => res.render('login'))
 router.get(routes.register, (req, res) => res.render('register'))
 
-// ✅ Felhasználó kezelés
-router.post(routes.login, LoginController.login)
+router.post(routes.login, csrfProtection, LoginController.login)
 router.get(routes.logout, LoginController.logout)
 router.post(
     routes.register,
-    RegisterController.validation,
     csrfProtection,
+    RegisterController.validation,
     RegisterController.register
 )
 
 // ✅ API végpontok
-router.get(routes.version, AppController.getVer)
-router.get(routes.me, authMiddleware, AppController.me)
+router.get(prefix.api + routes.version, AppController.getVer)
+router.get(prefix.api + routes.me, authMiddleware, AppController.me)
 
-// ✅ Védett végpontok
-router.get(routes.notesList, NotesController.list)
-router.post(routes.notesSave, csrfProtection, NotesController.save)
-
-// ✅ CSRF Token lekérés
-router.get(routes.csrfToken, csrfProtection, (req, res) => {
-    res.json({ csrfToken: req.csrfToken() })
-})
+// ✅ Jegyzetek kezelése
+router.get(prefix.notes + routes.notesList, NotesController.list)
+router.post(
+    prefix.notes + routes.notesSave,
+    csrfProtection,
+    NotesController.save
+)
+router.get(prefix.notes + routes.notesById, NotesController.loadbyid)
 
 // ✅ Exportálás
 module.exports = { router, routes }

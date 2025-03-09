@@ -6,7 +6,7 @@
         <meta http-equiv="X-UA-Compatible" content="ie=edge" />
         <title>WebNotes -//- 404</title>
         <link href="/css/tabler.min.css" rel="stylesheet" />
-        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" />
+        <link href="/css/tabler-icons-outline.min.css" rel="stylesheet" />
         <style>
             @import url('https://rsms.me/inter/inter.css');
             :root {
@@ -26,10 +26,23 @@
                 right: 1rem;
                 z-index: 1000;
             }
+            .theme-toggle i {
+                font-size: 1.5rem;
+                cursor: pointer;
+                transition: color 0.3s, transform 0.3s ease-in-out;
+            }
         </style>
     </head>
     <body class="d-flex flex-column">
         <script src="/js/theme.min.js"></script>
+        <div class="theme-toggle">
+            <a href="#" class="nav-link px-0 hide-theme-dark" title="Sötét mód bekapcsolása" data-bs-toggle="tooltip" data-bs-placement="bottom">
+                <i class="ti ti-moon"></i>
+            </a>
+            <a href="#" class="nav-link px-0 hide-theme-light" title="Világos mód bekapcsolása" data-bs-toggle="tooltip" data-bs-placement="bottom">
+                <i class="ti ti-sun"></i>
+            </a>
+        </div>
         <div class="page page-center">
             <div class="container-tight py-4">
                 <div class="empty">
@@ -51,7 +64,6 @@
             </div>
         </div>
         <script src="/js/tabler.min.js" defer></script>
-        <script src="/js/app.js" defer></script>
         <script src="/js/theme.js"></script>
     </body>
 </html>
