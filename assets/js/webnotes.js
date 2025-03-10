@@ -12,7 +12,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function createTagElement(tag) {
         const tagElement = document.createElement('div')
-        tagElement.classList.add('badge', 'bg-primary', 'me-1', 'p-2', 'text-white')
+        tagElement.classList.add(
+            'badge',
+            'bg-primary',
+            'me-1',
+            'p-2',
+            'text-white'
+        )
         tagElement.textContent = tag
 
         const removeBtn = document.createElement('span')
@@ -42,7 +48,11 @@ document.addEventListener('DOMContentLoaded', () => {
     })
 
     tagInput.addEventListener('keydown', (event) => {
-        if (event.key === 'Backspace' && tagInput.value === '' && tags.length > 0) {
+        if (
+            event.key === 'Backspace' &&
+            tagInput.value === '' &&
+            tags.length > 0
+        ) {
             const lastTag = tags.pop()
             updateHiddenInput()
             ;[...tagContainer.getElementsByClassName('badge')].pop().remove()
@@ -138,7 +148,9 @@ function renderNotes(notesToRender) {
 <div class="card card-sm h-100">
 <div class="card-header">
 <div class="d-flex justify-content-between align-items-center w-100">
-<h3 class="card-title text-truncate mb-0" title="${escapeHtml(note.title)}">${escapeHtml(note.title)}</h3>
+<h3 class="card-title text-truncate mb-0" title="${escapeHtml(
+                note.title
+            )}">${escapeHtml(note.title)}</h3>
 <div class="card-actions">
   <div class="dropdown">
     <a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
@@ -149,7 +161,9 @@ function renderNotes(notesToRender) {
         <i class="ti ti-edit icon dropdown-item-icon"></i>
         Szerkesztés
       </a>
-      <a class="dropdown-item text-danger" href="#" onclick="deleteNote(${note.id})">
+      <a class="dropdown-item text-danger" href="#" onclick="deleteNote(${
+          note.id
+      })">
         <i class="ti ti-trash icon dropdown-item-icon"></i>
         Törlés
       </a>
@@ -166,7 +180,9 @@ ${note.content}
 <div class="d-flex justify-content-between align-items-center">
   <div class="text-muted small">
     <i class="ti ti-clock-hour-4 me-1"></i> ${
-        note.createdAt ? new Date(note.createdAt).toLocaleDateString('hu-HU') : 'Nincs dátum'
+        note.createdAt
+            ? new Date(note.createdAt).toLocaleDateString('hu-HU')
+            : 'Nincs dátum'
     }
   </div>
 </div>
@@ -206,7 +222,9 @@ function initSearchHandler() {
                 (note) =>
                     note.title.toLowerCase().includes(searchTerm) ||
                     note.content.toLowerCase().includes(searchTerm) ||
-                    note.tags.some((tag) => tag.toLowerCase().includes(searchTerm))
+                    note.tags.some((tag) =>
+                        tag.toLowerCase().includes(searchTerm)
+                    )
             )
             renderNotes(filteredNotes)
         }, 300)
@@ -314,7 +332,8 @@ function deleteNote(id) {
                 const response = await fetch(`/notes/delete/${id}`, {
                     method: 'DELETE',
                     headers: {
-                        'X-CSRF-Token': document.querySelector('meta[name="_csrf"]').getAttribute('content'),
+                        'X-CSRF-Token':
+                            document.getElementById('csrf_token').value,
                     },
                 })
 
@@ -344,7 +363,9 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('[href^="?theme="]').forEach((link) => {
         link.addEventListener('click', (e) => {
             e.preventDefault()
-            const theme = e.currentTarget.href.includes('dark') ? 'dark' : 'light'
+            const theme = e.currentTarget.href.includes('dark')
+                ? 'dark'
+                : 'light'
             saveTheme(theme)
         })
     })
