@@ -10,25 +10,18 @@ const save = async (req, res) => {
             attributes: ['id'],
         })
         if (!user) {
-            return res
-                .status(401)
-                .json({ status: 'error', message: 'Unauthorized' })
+            return res.status(401).json({ status: 'error', message: 'Unauthorized' })
         }
 
         // 🔴 **Ellenőrizzük, hogy a jegyzetek léteznek és nem üresek**
         if (!notes || (Array.isArray(notes) && notes.length === 0)) {
-            return res
-                .status(400)
-                .json({ status: 'error', message: 'Notes are required' })
+            return res.status(400).json({ status: 'error', message: 'Notes are required' })
         }
 
         // 🔵 **Ha a notes JSON stringként érkezik, akkor parsoljuk**
-        const decodedNotes =
-            typeof notes === 'string' ? JSON.parse(notes) : notes
+        const decodedNotes = typeof notes === 'string' ? JSON.parse(notes) : notes
         if (!Array.isArray(decodedNotes) || decodedNotes.length === 0) {
-            return res
-                .status(400)
-                .json({ status: 'error', message: 'Notes are required' })
+            return res.status(400).json({ status: 'error', message: 'Notes are required' })
         }
 
         // 🟢 **Tömeges jegyzet beszúrás**
@@ -57,9 +50,7 @@ const save = async (req, res) => {
                 where: { name: Array.from(tagNames) },
             })
             const existingTagNames = existingTags.map((tag) => tag.name)
-            const newTags = Array.from(tagNames).filter(
-                (tag) => !existingTagNames.includes(tag)
-            )
+            const newTags = Array.from(tagNames).filter((tag) => !existingTagNames.includes(tag))
 
             // Csak az új címkéket hozzuk létre
             const createdTags = await Tag.bulkCreate(
@@ -70,9 +61,7 @@ const save = async (req, res) => {
 
             // 🟢 **Kapcsolatok létrehozása a jegyzetek és címkék között (duplikációk elkerülése)**
             for (let i = 0; i < createdNotes.length; i++) {
-                const noteTags = decodedNotes[i].tags
-                    .map((tag) => allTags.find((t) => t.name === tag))
-                    .filter(Boolean)
+                const noteTags = decodedNotes[i].tags.map((tag) => allTags.find((t) => t.name === tag)).filter(Boolean)
 
                 for (const tag of noteTags) {
                     const existingRelation = await createdNotes[i].hasTag(tag)
@@ -103,9 +92,7 @@ const list = async (req, res) => {
     })
 
     if (!user || !user.id) {
-        return res
-            .status(401)
-            .json({ status: 'error', message: 'Unauthorized' })
+        return res.status(401).json({ status: 'error', message: 'Unauthorized' })
     }
 
     try {
@@ -147,16 +134,12 @@ const edit = async (req, res) => {
             attributes: ['id'],
         })
         if (!user) {
-            return res
-                .status(401)
-                .json({ status: 'error', message: 'Unauthorized' })
+            return res.status(401).json({ status: 'error', message: 'Unauthorized' })
         }
 
         const note = await Note.findByPk(noteId)
         if (!note || note.user_id !== user.id) {
-            return res
-                .status(404)
-                .json({ status: 'error', message: 'Note not found' })
+            return res.status(404).json({ status: 'error', message: 'Note not found' })
         }
 
         note.title = title
@@ -170,9 +153,7 @@ const edit = async (req, res) => {
                 where: { name: tagNames },
             })
             const existingTagNames = existingTags.map((tag) => tag.name)
-            const newTags = tagNames.filter(
-                (tag) => !existingTagNames.includes(tag)
-            )
+            const newTags = tagNames.filter((tag) => !existingTagNames.includes(tag))
 
             const createdTags = await Tag.bulkCreate(
                 newTags.map((name) => ({ name })),
@@ -180,9 +161,7 @@ const edit = async (req, res) => {
             )
             const allTags = [...existingTags, ...createdTags]
 
-            const noteTags = allTags.filter((tag) =>
-                tagNames.includes(tag.name)
-            )
+            const noteTags = allTags.filter((tag) => tagNames.includes(tag.name))
             await note.setTags(noteTags)
         }
 
@@ -204,9 +183,7 @@ const loadbyid = async (req, res) => {
         const { id } = req.params
 
         if (isNaN(id)) {
-            return res
-                .status(400)
-                .json({ status: 'error', message: 'Invalid note ID' })
+            return res.status(400).json({ status: 'error', message: 'Invalid note ID' })
         }
 
         const user = await User.findByPk(req.session.userId, {
@@ -214,9 +191,7 @@ const loadbyid = async (req, res) => {
         })
 
         if (!user) {
-            return res
-                .status(401)
-                .json({ status: 'error', message: 'Unauthorized' })
+            return res.status(401).json({ status: 'error', message: 'Unauthorized' })
         }
 
         const note = await Note.findByPk(id, {
@@ -230,9 +205,7 @@ const loadbyid = async (req, res) => {
         })
 
         if (!note || note.user_id !== user.id) {
-            return res
-                .status(404)
-                .json({ status: 'error', message: 'Note not found' })
+            return res.status(404).json({ status: 'error', message: 'Note not found' })
         }
 
         res.status(200).json({
@@ -255,9 +228,45 @@ const loadbyid = async (req, res) => {
     }
 }
 
+const remove = async (req, res) => {
+    try {
+        const { id } = req.params
+
+        if (isNaN(id)) {
+            return res.status(400).json({ status: 'error', message: 'Invalid note ID' })
+        }
+
+        const user = await User.findByPk(req.session.userId, {
+            attributes: ['id'],
+        })
+
+        if (!user) {
+            return res.status(401).json({ status: 'error', message: 'Unauthorized' })
+        }
+
+        const note = await Note.findByPk(id)
+        if (!note || note.user_id !== user.id) {
+            return res.status(404).json({ status: 'error', message: 'Note not found' })
+        }
+
+        await note.destroy()
+        res.status(200).json({
+            status: 'success',
+            message: 'Note deleted successfully',
+        })
+    } catch (error) {
+        console.error('Delete note error:', error)
+        res.status(500).json({
+            status: 'error',
+            message: 'Failed to delete note',
+        })
+    }
+}
+
 module.exports = {
     save,
     list,
     edit,
     loadbyid,
+    remove,
 }

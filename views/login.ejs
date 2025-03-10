@@ -95,10 +95,6 @@
                         data: JSON.stringify(formData),
                         success: function (response) {
                             if (response.success) {
-                                // ✅ JWT token mentése localStorage-ba
-                                localStorage.setItem('accessToken', response.accessToken)
-                                localStorage.setItem('refreshToken', response.refreshToken)
-
                                 Toast.fire({
                                     icon: 'success',
                                     title: 'Sikeres bejelentkezés! Átirányítás...',
