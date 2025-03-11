@@ -157,7 +157,7 @@ function renderNotes(notesToRender) {
       <i class="ti ti-dots-vertical"></i>
     </a>
     <div class="dropdown-menu dropdown-menu-end">
-      <a class="dropdown-item" href="#" onclick="editNote(${note.id})">
+      <a class="dropdown-item" href="#" onclick="openNoteModal(${note.id})">
         <i class="ti ti-edit icon dropdown-item-icon"></i>
         Szerkesztés
       </a>
@@ -231,6 +231,81 @@ function initSearchHandler() {
     })
 }
 
+function openNoteModal(noteId = null) {
+    const noteForm = document.getElementById('noteForm')
+    if (noteId) {
+        noteForm.reset()
+        //noteForm.removeEventListener('submit', edtiNote)
+        fetch(`/notes/finbyid/${noteId}`)
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`Hiba a betöltéskor: ${response.status}`)
+                }
+                return response.json()
+            })
+            .then((data) => {
+                console.log('Szerver válasza:', data)
+
+                if (data.status === 'success') {
+                    const note = data.note
+
+                    // Cím beállítása
+                    document.getElementById('noteTitle').value = note.title
+
+                    // Tartalom beállítása (TinyMCE vagy normál textarea)
+                    if (hugerte.get('noteContent')) {
+                        hugerte.get('noteContent').setContent(note.content)
+                    } else {
+                        document.getElementById('noteContent').value =
+                            note.content
+                    }
+
+                    updateTagUI(note.tags)
+
+                    noteModal.show()
+                } else {
+                    showError('Nem sikerült betölteni a jegyzetet')
+                }
+            })
+            .catch((error) => {
+                console.error('Hiba történt:', error)
+                showError('Nem sikerült betölteni a jegyzetet')
+            })
+    } else {
+        console.log('Kibaszott új jegyzet létrehozása')
+        //add submit event listener
+        noteForm.reset()
+        noteForm.addEventListener('submit', saveNote)
+        noteModal.show()
+    }
+}
+
+function updateTagUI(tags) {
+    const tagContainer = document.getElementById('tag-container')
+    const hiddenTags = document.getElementById('hiddenTags')
+
+    // Előző címkék törlése
+    tagContainer.innerHTML = ''
+
+    // Új címkék hozzáadása
+    tags.forEach((tag) => {
+        const tagElement = document.createElement('span')
+        tagElement.classList.add('badge', 'bg-primary', 'me-1')
+        tagElement.textContent = tag
+
+        // Címke törlése kattintásra
+        tagElement.addEventListener('click', () => {
+            const newTags = tags.filter((t) => t !== tag)
+            updateTagUI(newTags)
+        })
+
+        tagContainer.appendChild(tagElement)
+    })
+
+    // Frissítsük a hidden inputot a backend számára
+    hiddenTags.value = tags.join(', ')
+}
+
 async function saveNote(event) {
     event.preventDefault()
     const form = event.target
@@ -268,9 +343,12 @@ async function saveNote(event) {
             noteModal.hide()
             form.reset()
             hugerte.get('noteContent').setContent('')
-            Toast.fire({
+            //swal whit success button
+            Swal.fire({
                 icon: 'success',
                 title: 'Jegyzet mentve!',
+                showConfirmButton: false,
+                timer: 1500,
             })
         } else {
             Toast.fire({
@@ -308,12 +386,6 @@ function showError(message) {
         icon: 'error',
         title: message,
     })
-}
-
-function openNoteModal() {
-    document.getElementById('noteForm').reset()
-    hugerte.get('noteContent').setContent('')
-    noteModal.show()
 }
 
 function deleteNote(id) {
