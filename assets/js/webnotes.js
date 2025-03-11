@@ -290,15 +290,24 @@ function updateTagUI(tags) {
     // Új címkék hozzáadása
     tags.forEach((tag) => {
         const tagElement = document.createElement('span')
-        tagElement.classList.add('badge', 'bg-primary', 'me-1')
+        tagElement.classList.add(
+            'badge',
+            'bg-primary',
+            'me-1',
+            'p-2',
+            'text-white'
+        )
         tagElement.textContent = tag
 
-        // Címke törlése kattintásra
-        tagElement.addEventListener('click', () => {
-            const newTags = tags.filter((t) => t !== tag)
-            updateTagUI(newTags)
-        })
+        const removeBtn = document.createElement('span')
+        removeBtn.textContent = ' ✖'
+        removeBtn.style.cursor = 'pointer'
+        removeBtn.onclick = () => {
+            tags = tags.filter((t) => t !== tag)
+            tagElement.remove()
+        }
 
+        tagElement.appendChild(removeBtn)
         tagContainer.appendChild(tagElement)
     })
 
