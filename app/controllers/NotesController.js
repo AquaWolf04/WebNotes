@@ -249,6 +249,11 @@ const remove = async (req, res) => {
             return res.status(404).json({ status: 'error', message: 'Note not found' })
         }
 
+        const noteTags = await NoteTag.findAll({
+            where: { note_id: note.id },
+        })
+        await Promise.all(noteTags.map((noteTag) => noteTag.destroy()))
+
         await note.destroy()
         res.status(200).json({
             status: 'success',
