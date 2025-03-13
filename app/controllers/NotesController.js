@@ -128,7 +128,8 @@ const list = async (req, res) => {
 
 const edit = async (req, res) => {
     try {
-        const { noteId, title, content, tags } = req.body
+        const noteId = req.params.id
+        const { title, content, tags } = req.body
 
         const user = await User.findByPk(req.session.userId, {
             attributes: ['id'],

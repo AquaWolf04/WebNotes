@@ -12,13 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function createTagElement(tag) {
         const tagElement = document.createElement('div')
-        tagElement.classList.add(
-            'badge',
-            'bg-primary',
-            'me-1',
-            'p-2',
-            'text-white'
-        )
+        tagElement.classList.add('badge', 'bg-primary', 'me-1', 'p-2', 'text-white')
         tagElement.textContent = tag
 
         const removeBtn = document.createElement('span')
@@ -48,11 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
     })
 
     tagInput.addEventListener('keydown', (event) => {
-        if (
-            event.key === 'Backspace' &&
-            tagInput.value === '' &&
-            tags.length > 0
-        ) {
+        if (event.key === 'Backspace' && tagInput.value === '' && tags.length > 0) {
             const lastTag = tags.pop()
             updateHiddenInput()
             ;[...tagContainer.getElementsByClassName('badge')].pop().remove()
@@ -148,9 +138,7 @@ function renderNotes(notesToRender) {
 <div class="card card-sm h-100">
 <div class="card-header">
 <div class="d-flex justify-content-between align-items-center w-100">
-<h3 class="card-title text-truncate mb-0" title="${escapeHtml(
-                note.title
-            )}">${escapeHtml(note.title)}</h3>
+<h3 class="card-title text-truncate mb-0" title="${escapeHtml(note.title)}">${escapeHtml(note.title)}</h3>
 <div class="card-actions">
   <div class="dropdown">
     <a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
@@ -161,9 +149,7 @@ function renderNotes(notesToRender) {
         <i class="ti ti-edit icon dropdown-item-icon"></i>
         Szerkesztés
       </a>
-      <a class="dropdown-item text-danger" href="#" onclick="deleteNote(${
-          note.id
-      })">
+      <a class="dropdown-item text-danger" href="#" onclick="deleteNote(${note.id})">
         <i class="ti ti-trash icon dropdown-item-icon"></i>
         Törlés
       </a>
@@ -180,9 +166,7 @@ ${note.content}
 <div class="d-flex justify-content-between align-items-center">
   <div class="text-muted small">
     <i class="ti ti-clock-hour-4 me-1"></i> ${
-        note.createdAt
-            ? new Date(note.createdAt).toLocaleDateString('hu-HU')
-            : 'Nincs dátum'
+        note.createdAt ? new Date(note.createdAt).toLocaleDateString('hu-HU') : 'Nincs dátum'
     }
   </div>
 </div>
@@ -222,9 +206,7 @@ function initSearchHandler() {
                 (note) =>
                     note.title.toLowerCase().includes(searchTerm) ||
                     note.content.toLowerCase().includes(searchTerm) ||
-                    note.tags.some((tag) =>
-                        tag.toLowerCase().includes(searchTerm)
-                    )
+                    note.tags.some((tag) => tag.toLowerCase().includes(searchTerm))
             )
             renderNotes(filteredNotes)
         }, 300)
@@ -233,9 +215,24 @@ function initSearchHandler() {
 
 function openNoteModal(noteId = null) {
     const noteForm = document.getElementById('noteForm')
+
+    if (!noteForm) {
+        console.error('❌ A noteForm nem található!')
+        return
+    }
+
     if (noteId) {
+        console.log('🔄 Szerkesztés mód')
         noteForm.reset()
-        //noteForm.removeEventListener('submit', edtiNote)
+        noteForm.removeEventListener('submit', saveNote)
+        noteForm.removeEventListener('submit', editNote)
+        noteForm.addEventListener('submit', (event) => {
+            event.preventDefault()
+            console.log('✅ editNote esemény aktiválódott!')
+            editNote(event, noteId)
+        })
+        console.log('✅ editNote esemény hozzáadva')
+
         fetch(`/notes/finbyid/${noteId}`)
             .then((response) => {
                 if (!response.ok) {
@@ -244,24 +241,17 @@ function openNoteModal(noteId = null) {
                 return response.json()
             })
             .then((data) => {
-                console.log('Szerver válasza:', data)
-
                 if (data.status === 'success') {
                     const note = data.note
-
-                    // Cím beállítása
                     document.getElementById('noteTitle').value = note.title
 
-                    // Tartalom beállítása (TinyMCE vagy normál textarea)
                     if (hugerte.get('noteContent')) {
                         hugerte.get('noteContent').setContent(note.content)
                     } else {
-                        document.getElementById('noteContent').value =
-                            note.content
+                        document.getElementById('noteContent').value = note.content
                     }
 
                     updateTagUI(note.tags)
-
                     noteModal.show()
                 } else {
                     showError('Nem sikerült betölteni a jegyzetet')
@@ -272,10 +262,17 @@ function openNoteModal(noteId = null) {
                 showError('Nem sikerült betölteni a jegyzetet')
             })
     } else {
-        console.log('Kibaszott új jegyzet létrehozása')
-        //add submit event listener
+        console.log('➕ Új jegyzet mód')
+        noteForm.removeEventListener('submit', saveNote)
+        noteForm.removeEventListener('submit', editNote)
+        noteForm.addEventListener('submit', (event) => {
+            event.preventDefault()
+            console.log('✅ saveNote esemény aktiválódott!')
+            saveNote(event)
+        })
+        console.log('✅ saveNote esemény hozzáadva')
+
         noteForm.reset()
-        noteForm.addEventListener('submit', saveNote)
         noteModal.show()
     }
 }
@@ -290,13 +287,7 @@ function updateTagUI(tags) {
     // Új címkék hozzáadása
     tags.forEach((tag) => {
         const tagElement = document.createElement('span')
-        tagElement.classList.add(
-            'badge',
-            'bg-primary',
-            'me-1',
-            'p-2',
-            'text-white'
-        )
+        tagElement.classList.add('badge', 'bg-primary', 'me-1', 'p-2', 'text-white')
         tagElement.textContent = tag
 
         const removeBtn = document.createElement('span')
@@ -374,6 +365,59 @@ async function saveNote(event) {
     }
 }
 
+async function editNote(event, noteId) {
+    event.preventDefault()
+    const form = event.target
+    const formData = new FormData(form)
+    const content = hugerte.get('noteContent').getContent()
+    const tags = formData
+        .get('tags')
+        .split(',')
+        .map((tag) => tag.trim())
+        .filter((tag) => tag.length > 0)
+
+    if (!noteId) {
+        console.error('❌ Hiba: noteId nincs megadva!')
+        showError('Nem sikerült frissíteni a jegyzetet: nincs azonosító.')
+        return
+    }
+
+    const noteData = {
+        title: formData.get('title'),
+        content: content,
+        tags: tags,
+    }
+    console.log('📌 Küldött adatok:', noteData)
+
+    try {
+        const response = await fetch(`/notes/update/${noteId}`, {
+            // 🔹 Itt az id helyett noteId kell!
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': formData.get('_csrf'),
+            },
+            body: JSON.stringify(noteData),
+        })
+
+        const data = await response.json()
+        console.log('📩 Szerver válasza:', data)
+
+        if (data.status === 'success') {
+            await loadNotes()
+            noteModal.hide()
+            form.reset()
+            hugerte.get('noteContent').setContent('')
+            showSuccess('A jegyzet frissítve lett!')
+        } else {
+            showError('Nem sikerült frissíteni a jegyzetet')
+        }
+    } catch (error) {
+        console.error('🚨 Fetch hiba:', error)
+        showError('Nem sikerült frissíteni a jegyzetet')
+    }
+}
+
 function escapeHtml(unsafe) {
     return unsafe
         .replace(/&/g, '&amp;')
@@ -413,8 +457,7 @@ function deleteNote(id) {
                 const response = await fetch(`/notes/delete/${id}`, {
                     method: 'DELETE',
                     headers: {
-                        'X-CSRF-Token':
-                            document.getElementById('csrf_token').value,
+                        'X-CSRF-Token': document.getElementById('csrf_token').value,
                     },
                 })
 
@@ -444,9 +487,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('[href^="?theme="]').forEach((link) => {
         link.addEventListener('click', (e) => {
             e.preventDefault()
-            const theme = e.currentTarget.href.includes('dark')
-                ? 'dark'
-                : 'light'
+            const theme = e.currentTarget.href.includes('dark') ? 'dark' : 'light'
             saveTheme(theme)
         })
     })

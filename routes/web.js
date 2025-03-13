@@ -41,5 +41,8 @@ router.get('/notes/finbyid/:id', NotesController.loadbyid)
 // Jegyzetek törlése
 router.delete('/notes/delete/:id', NotesController.remove)
 
+// Jegyzetek frissítése
+router.put('/notes/update/:id', csrfProtection, NotesController.edit)
+
 // ✅ Exportálás
 module.exports = router
