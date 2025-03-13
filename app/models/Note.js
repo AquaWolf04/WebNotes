@@ -40,7 +40,7 @@ const Note = sequelize.define(
     },
     {
         timestamps: false,
-        tableName: 'note',
+        tableName: 'notes',
     }
 )
 
