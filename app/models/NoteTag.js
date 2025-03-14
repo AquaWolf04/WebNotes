@@ -3,11 +3,7 @@ const sequelize = require('../../config/database')
 const Note = require('./Note')
 const Tag = require('./Tag')
 
-const NoteTag = sequelize.define(
-    'NoteTag',
-    {},
-    { timestamps: false, tableName: 'note_tags' }
-)
+const NoteTag = sequelize.define('NoteTag', {}, { timestamps: false, tableName: 'note_tags' })
 
 // **Kapcsolatok beállítása**
 Note.belongsToMany(Tag, {

@@ -72,9 +72,7 @@ const register = async (req, res) => {
             role,
         })
 
-        logger.info(
-            `Új felhasználó regisztrált: ${username} (${email}), szerep: ${role}`
-        )
+        logger.info(`Új felhasználó regisztrált: ${username} (${email}), szerep: ${role}`)
 
         req.session.user = {
             id: newUser.id,
@@ -96,9 +94,7 @@ const register = async (req, res) => {
             message: 'Szerverhiba történt, próbáld újra!',
             type: 'error',
         }
-        return res
-            .status(500)
-            .json({ errors: [{ msg: 'Szerverhiba történt, próbáld újra!' }] })
+        return res.status(500).json({ errors: [{ msg: 'Szerverhiba történt, próbáld újra!' }] })
     }
 }
 

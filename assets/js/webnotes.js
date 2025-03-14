@@ -285,7 +285,7 @@ function updateTagUI(tags) {
     tagContainer.innerHTML = ''
 
     // Új címkék hozzáadása
-    tags.forEach((tag) => {
+    tags.forEach((tag, index) => {
         const tagElement = document.createElement('span')
         tagElement.classList.add('badge', 'bg-primary', 'me-1', 'p-2', 'text-white')
         tagElement.textContent = tag
@@ -294,8 +294,8 @@ function updateTagUI(tags) {
         removeBtn.textContent = ' ✖'
         removeBtn.style.cursor = 'pointer'
         removeBtn.onclick = () => {
-            tags = tags.filter((t) => t !== tag)
-            tagElement.remove()
+            tags.splice(index, 1) // Eltávolítjuk az elemet a tömbből
+            updateTagUI(tags) // Frissítjük a UI-t
         }
 
         tagElement.appendChild(removeBtn)

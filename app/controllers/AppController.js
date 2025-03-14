@@ -4,9 +4,7 @@ const { User } = require('../../app/models')
 const me = async (req, res) => {
     try {
         if (!req.session.userId) {
-            return res
-                .status(401)
-                .json({ errors: [{ msg: 'Nincs bejelentkezve' }] })
+            return res.status(401).json({ errors: [{ msg: 'Nincs bejelentkezve' }] })
         }
 
         const user = await User.findByPk(req.session.userId, {
@@ -14,9 +12,7 @@ const me = async (req, res) => {
         })
 
         if (!user) {
-            return res
-                .status(404)
-                .json({ errors: [{ msg: 'Felhasználó nem található' }] })
+            return res.status(404).json({ errors: [{ msg: 'Felhasználó nem található' }] })
         }
 
         return res.json({ user })
