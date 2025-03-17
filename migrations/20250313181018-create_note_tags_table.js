@@ -5,6 +5,7 @@ module.exports = {
         await queryInterface.createTable('note_tags', {
             note_id: {
                 type: Sequelize.INTEGER,
+                allowNull: false,
                 references: {
                     model: 'notes',
                     key: 'id',
@@ -14,6 +15,7 @@ module.exports = {
             },
             tag_id: {
                 type: Sequelize.INTEGER,
+                allowNull: false,
                 references: {
                     model: 'tags',
                     key: 'id',
@@ -21,14 +23,13 @@ module.exports = {
                 onUpdate: 'CASCADE',
                 onDelete: 'CASCADE',
             },
-            createdAt: {
-                allowNull: false,
-                type: Sequelize.DATE,
-            },
-            updatedAt: {
-                allowNull: false,
-                type: Sequelize.DATE,
-            },
+        })
+
+        // 🔹 Egyedi kulcs biztosítása (megelőzi a duplikációt)
+        await queryInterface.addConstraint('note_tags', {
+            fields: ['note_id', 'tag_id'],
+            type: 'primary key',
+            name: 'pk_note_tags',
         })
     },
 

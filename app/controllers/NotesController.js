@@ -1,119 +1,93 @@
 const { Note, Tag, User, NoteTag } = require('../models')
 const { Op } = require('sequelize')
+const logger = require('../../utils/logger')
 
 const save = async (req, res) => {
     try {
-        const { notes } = req.body
+        console.log('📩 Beérkező body:', req.body)
 
-        // 🔴 **Ellenőrizzük, hogy a felhasználó be van-e jelentkezve**
-        const user = await User.findByPk(req.session.userId, {
-            attributes: ['id'],
-        })
+        const noteData = req.body
+
+        if (!noteData.title || !noteData.content) {
+            return res.status(400).json({ status: 'error', message: 'Cím illetve tartalom megadása kötelező' })
+        }
+
+        const userId = req.session.userId
+        if (!userId) {
+            return res.status(401).json({ status: 'error', message: 'Unauthorized' })
+        }
+
+        const user = await User.findByPk(userId)
+
         if (!user) {
             return res.status(401).json({ status: 'error', message: 'Unauthorized' })
         }
 
-        // 🔴 **Ellenőrizzük, hogy a jegyzetek léteznek és nem üresek**
-        if (!notes || (Array.isArray(notes) && notes.length === 0)) {
-            return res.status(400).json({ status: 'error', message: 'Notes are required' })
-        }
-
-        // 🔵 **Ha a notes JSON stringként érkezik, akkor parsoljuk**
-        const decodedNotes = typeof notes === 'string' ? JSON.parse(notes) : notes
-        if (!Array.isArray(decodedNotes) || decodedNotes.length === 0) {
-            return res.status(400).json({ status: 'error', message: 'Notes are required' })
-        }
-
-        // 🟢 **Tömeges jegyzet beszúrás**
-        const notesToInsert = decodedNotes.map((note) => ({
-            user_id: user.id,
-            title: note.title,
-            content: note.content,
-            creation_date: note.createdAt || new Date(),
-            modification_date: note.createdAt || new Date(),
-        }))
-        const createdNotes = await Note.bulkCreate(notesToInsert, {
-            returning: true,
+        const note = await Note.create({
+            user_id: userId,
+            title: noteData.title,
+            content: noteData.content,
         })
 
-        // 🟢 **Címke (tag) kezelés**
-        const tagNames = new Set()
-        decodedNotes.forEach((note) => {
-            if (note.tags) {
-                note.tags.forEach((tag) => tagNames.add(tag.trim()))
-            }
-        })
-
-        if (tagNames.size > 0) {
-            // 🟢 **Létező címkék lekérése és új címkék létrehozása**
+        if (noteData.tags) {
+            const tagNames = noteData.tags.map((tag) => tag.trim())
             const existingTags = await Tag.findAll({
-                where: { name: Array.from(tagNames) },
+                where: { name: tagNames },
             })
             const existingTagNames = existingTags.map((tag) => tag.name)
-            const newTags = Array.from(tagNames).filter((tag) => !existingTagNames.includes(tag))
+            const newTags = tagNames.filter((tag) => !existingTagNames.includes(tag))
 
-            // Csak az új címkéket hozzuk létre
             const createdTags = await Tag.bulkCreate(
                 newTags.map((name) => ({ name })),
                 { returning: true }
             )
             const allTags = [...existingTags, ...createdTags]
 
-            // 🟢 **Kapcsolatok létrehozása a jegyzetek és címkék között (duplikációk elkerülése)**
-            for (let i = 0; i < createdNotes.length; i++) {
-                const noteTags = decodedNotes[i].tags.map((tag) => allTags.find((t) => t.name === tag)).filter(Boolean)
-
-                for (const tag of noteTags) {
-                    const existingRelation = await createdNotes[i].hasTag(tag)
-                    if (!existingRelation) {
-                        await createdNotes[i].addTag(tag)
-                    }
-                }
-            }
+            const noteTags = allTags.filter((tag) => tagNames.includes(tag.name))
+            await note.setTags(noteTags)
         }
 
         res.status(201).json({
             status: 'success',
-            message: 'Notes saved successfully',
+            message: 'Note saved successfully',
         })
     } catch (error) {
-        console.error('Save notes error:', error)
+        logger.error('Save note error:', error)
         res.status(500).json({
             status: 'error',
-            message: 'Failed to save notes',
+            message: 'Failed to save note',
         })
     }
 }
 
 const list = async (req, res) => {
-    //const user = req.session.userId
-    const user = await User.findByPk(req.session.userId, {
-        attributes: ['id'],
-    })
+    const userId = req.session.userId // Nincs szükség újabb DB lekérdezésre
 
-    if (!user || !user.id) {
+    if (!userId) {
         return res.status(401).json({ status: 'error', message: 'Unauthorized' })
     }
 
     try {
         const notes = await Note.findAll({
-            where: { user_id: user.id },
+            where: { user_id: userId },
+            attributes: ['id', 'title', 'content', 'createdAt', 'updatedAt'], // Kérd le az összes szükséges mezőt!
             include: [
                 {
                     model: Tag,
                     attributes: ['name'],
-                    through: { attributes: [] }, // Kapcsolótáblát ne hozza vissza
+                    through: { attributes: [] }, // Ne hozza vissza a kapcsolótáblát
                 },
             ],
         })
 
+        // Formázott válasz létrehozása
         const formattedNotes = notes.map((note) => ({
             id: note.id,
             title: note.title,
             content: note.content,
-            tags: note.Tags.map((tag) => tag.name),
-            createdAt: note.creation_date,
-            updatedAt: note.modification_date,
+            tags: note.Tags.map((tag) => tag.name), // Csak a tag nevek maradnak
+            createdAt: note.createdAt, // Helyes mezőnév!
+            updatedAt: note.updatedAt, // Helyes mezőnév!
         }))
 
         res.status(200).json({ status: 'success', notes: formattedNotes })

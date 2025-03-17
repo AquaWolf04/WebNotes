@@ -28,6 +28,19 @@ document.addEventListener('DOMContentLoaded', () => {
         tagContainer.appendChild(tagElement)
     }
 
+    function updateTagUI() {
+        tagContainer.innerHTML = '' // Előző címkék törlése
+
+        if (hiddenTags.value.trim() !== '') {
+            tags = hiddenTags.value.split(',').map((tag) => tag.trim()) // Betölti a korábbi címkéket
+        } else {
+            tags = [] // Ha nincs címke, ürítjük a listát
+        }
+
+        tags.forEach(createTagElement)
+        updateHiddenInput()
+    }
+
     tagInput.addEventListener('keydown', (event) => {
         if (event.key === 'Enter' || event.key === ',') {
             event.preventDefault()
@@ -48,8 +61,12 @@ document.addEventListener('DOMContentLoaded', () => {
             ;[...tagContainer.getElementsByClassName('badge')].pop().remove()
         }
     })
-})
 
+    // Amikor megnyílik a modal
+    document.getElementById('noteModal').addEventListener('show.bs.modal', (event) => {
+        updateTagUI() // Mindig frissíti a címkéket a meglévő hidden input alapján
+    })
+})
 document.addEventListener('DOMContentLoaded', function () {
     let options = {
         selector: '#noteContent',
@@ -221,16 +238,20 @@ function openNoteModal(noteId = null) {
         return
     }
 
+    // Új form submit esemény beállítása előtt eltávolítjuk az esetleg már meglévőt
+    noteForm.removeEventListener('submit', handleNoteSubmit)
+
     if (noteId) {
         console.log('🔄 Szerkesztés mód')
         noteForm.reset()
-        noteForm.removeEventListener('submit', saveNote)
-        noteForm.removeEventListener('submit', editNote)
-        noteForm.addEventListener('submit', (event) => {
+
+        // Új eseménykezelő a szerkesztéshez
+        handleNoteSubmit = (event) => {
             event.preventDefault()
             console.log('✅ editNote esemény aktiválódott!')
             editNote(event, noteId)
-        })
+        }
+        noteForm.addEventListener('submit', handleNoteSubmit)
         console.log('✅ editNote esemény hozzáadva')
 
         fetch(`/notes/finbyid/${noteId}`)
@@ -244,6 +265,7 @@ function openNoteModal(noteId = null) {
                 if (data.status === 'success') {
                     const note = data.note
                     document.getElementById('noteTitle').value = note.title
+                    document.getElementById('noteId').value = note.id
 
                     if (hugerte.get('noteContent')) {
                         hugerte.get('noteContent').setContent(note.content)
@@ -263,19 +285,24 @@ function openNoteModal(noteId = null) {
             })
     } else {
         console.log('➕ Új jegyzet mód')
-        noteForm.removeEventListener('submit', saveNote)
-        noteForm.removeEventListener('submit', editNote)
-        noteForm.addEventListener('submit', (event) => {
+
+        noteForm.reset()
+
+        // Új eseménykezelő a mentéshez
+        handleNoteSubmit = (event) => {
             event.preventDefault()
             console.log('✅ saveNote esemény aktiválódott!')
             saveNote(event)
-        })
+        }
+        noteForm.addEventListener('submit', handleNoteSubmit)
         console.log('✅ saveNote esemény hozzáadva')
 
-        noteForm.reset()
         noteModal.show()
     }
 }
+
+// Eseménykezelő referencia
+let handleNoteSubmit = null
 
 function updateTagUI(tags) {
     const tagContainer = document.getElementById('tag-container')
@@ -306,23 +333,46 @@ function updateTagUI(tags) {
     hiddenTags.value = tags.join(', ')
 }
 
+// Címkék törlése (új jegyzet létrehozásakor)
+function resetTags() {
+    updateTagUI([]) // Kiüríti a tageket
+}
+
+// Modal megnyitás eseményfigyelője
+document.getElementById('noteModal').addEventListener('show.bs.modal', function (event) {
+    const noteId = document.getElementById('noteId').value
+    console.log('🆔 Jegyzet ID:', noteId)
+
+    if (noteId) {
+        // Ha van noteId, akkor szerkesztünk, tehát betöltjük a meglévő tageket
+        const hiddenTags = document.getElementById('hiddenTags').value
+        const tags = hiddenTags ? hiddenTags.split(',').map((tag) => tag.trim()) : []
+        updateTagUI(tags)
+    } else {
+        // Ha nincs noteId, akkor új jegyzet jön létre, tehát töröljük a címkéket
+        resetTags()
+    }
+})
+
 async function saveNote(event) {
     event.preventDefault()
     const form = event.target
     const formData = new FormData(form)
-    const content = hugerte.get('noteContent').getContent()
-    const tags = formData
-        .get('tags')
-        .split(',')
-        .map((tag) => tag.trim())
-        .filter((tag) => tag.length > 0)
+    const hiddenTags = document.getElementById('hiddenTags').value // 📌 Címkék a hidden inputból
 
     const noteData = {
         title: formData.get('title'),
-        content: content,
-        tags: tags,
+        content: hugerte.get('noteContent').getContent(),
+        tags: hiddenTags
+            ? hiddenTags
+                  .split(',')
+                  .map((tag) => tag.trim())
+                  .filter((tag) => tag.length > 0) // 📌 Töröljük az üres címkéket
+            : [],
         createdAt: new Date().toISOString(),
     }
+
+    console.log('📩 Küldött noteData:', JSON.stringify(noteData, null, 2)) // 📌 Debugging
 
     try {
         const response = await fetch('/notes/save', {
@@ -331,9 +381,7 @@ async function saveNote(event) {
                 'Content-Type': 'application/json',
                 'X-CSRF-Token': formData.get('_csrf'),
             },
-            body: JSON.stringify({
-                notes: JSON.stringify([noteData]),
-            }),
+            body: JSON.stringify(noteData),
         })
 
         const data = await response.json()
@@ -342,8 +390,8 @@ async function saveNote(event) {
             await loadNotes()
             noteModal.hide()
             form.reset()
+            document.getElementById('hiddenTags').value = '' // 📌 Címkék törlése új jegyzetnél
             hugerte.get('noteContent').setContent('')
-            //swal whit success button
             Swal.fire({
                 icon: 'success',
                 title: 'Jegyzet mentve!',

@@ -24,18 +24,17 @@ module.exports = {
             content: {
                 type: Sequelize.TEXT,
             },
-            creation_date: {
-                type: Sequelize.DATE,
-            },
-            modification_date: {
-                type: Sequelize.DATE,
-            },
             createdAt: {
-                allowNull: false,
                 type: Sequelize.DATE,
+                allowNull: false,
+                defaultValue: Sequelize.NOW,
             },
             updatedAt: {
+                type: Sequelize.DATE,
                 allowNull: false,
+                defaultValue: Sequelize.NOW,
+            },
+            deletedAt: {
                 type: Sequelize.DATE,
             },
         })

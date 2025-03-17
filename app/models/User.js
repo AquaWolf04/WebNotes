@@ -29,13 +29,9 @@ const User = sequelize.define(
             allowNull: false,
         },
         role: {
-            type: DataTypes.ENUM('admin', 'user'),
+            type: DataTypes.ENUM('admin', 'user', 'pro'),
             allowNull: false,
             defaultValue: 'user',
-        },
-        refreshToken: {
-            type: DataTypes.STRING(255),
-            allowNull: true,
         },
         registration_date: {
             type: DataTypes.DATE,

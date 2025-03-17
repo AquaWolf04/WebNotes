@@ -27,16 +27,6 @@ const Note = sequelize.define(
             type: DataTypes.TEXT,
             allowNull: false,
         },
-        creation_date: {
-            type: DataTypes.DATE,
-            allowNull: false,
-            defaultValue: DataTypes.NOW,
-        },
-        modification_date: {
-            type: DataTypes.DATE,
-            allowNull: false,
-            defaultValue: DataTypes.NOW,
-        },
     },
     {
         timestamps: false,
@@ -45,6 +35,7 @@ const Note = sequelize.define(
 )
 
 // Kapcsolat beállítása
+
 User.hasMany(Note, { foreignKey: 'user_id' })
 Note.belongsTo(User, { foreignKey: 'user_id' })
 

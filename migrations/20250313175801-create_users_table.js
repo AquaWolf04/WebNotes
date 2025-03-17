@@ -27,9 +27,6 @@ module.exports = {
                 type: Sequelize.ENUM('admin', 'user', 'pro'),
                 defaultValue: 'user',
             },
-            refreshToken: {
-                type: Sequelize.STRING(255),
-            },
             registration_date: {
                 type: Sequelize.DATE,
             },
@@ -37,11 +34,16 @@ module.exports = {
                 type: Sequelize.DATE,
             },
             createdAt: {
-                allowNull: false,
                 type: Sequelize.DATE,
+                allowNull: false,
+                defaultValue: Sequelize.NOW,
             },
             updatedAt: {
+                type: Sequelize.DATE,
                 allowNull: false,
+                defaultValue: Sequelize.NOW,
+            },
+            deletedAt: {
                 type: Sequelize.DATE,
             },
         })

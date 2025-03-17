@@ -3,18 +3,20 @@ const sequelize = require('../../config/database')
 const Note = require('./Note')
 const Tag = require('./Tag')
 
-const NoteTag = sequelize.define('NoteTag', {}, { timestamps: false, tableName: 'note_tags' })
-
-// **Kapcsolatok beállítása**
-Note.belongsToMany(Tag, {
-    through: NoteTag,
-    foreignKey: 'note_id',
-    onDelete: 'CASCADE',
-})
-Tag.belongsToMany(Note, {
-    through: NoteTag,
-    foreignKey: 'tag_id',
-    onDelete: 'CASCADE',
-})
-
+// NoteTag tábla létrehozása (köztes tábla a many-to-many kapcsolathoz)
+const NoteTag = sequelize.define(
+    'NoteTag',
+    {},
+    {
+        timestamps: false,
+        tableName: 'note_tags',
+        indexes: [
+            {
+                unique: true,
+                fields: ['note_id', 'tag_id'], // Megakadályozza a duplikációt
+            },
+        ],
+    }
+)
+// Modul exportálása
 module.exports = NoteTag
