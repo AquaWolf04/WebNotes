@@ -33,18 +33,22 @@ const User = sequelize.define(
             allowNull: false,
             defaultValue: 'user',
         },
-        registration_date: {
+        createdAt: {
             type: DataTypes.DATE,
-            allowNull: false,
-            defaultValue: DataTypes.NOW,
+            field: 'createdAt',
         },
-        password_change_date: {
+        updatedAt: {
             type: DataTypes.DATE,
+            field: 'updatedAt',
+        },
+        deletedAt: {
+            type: DataTypes.DATE,
+            field: 'deletedAt',
             allowNull: true,
         },
     },
     {
-        timestamps: false,
+        timestamps: true,
         tableName: 'users',
     }
 )

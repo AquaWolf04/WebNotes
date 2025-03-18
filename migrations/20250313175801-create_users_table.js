@@ -27,12 +27,6 @@ module.exports = {
                 type: Sequelize.ENUM('admin', 'user', 'pro'),
                 defaultValue: 'user',
             },
-            registration_date: {
-                type: Sequelize.DATE,
-            },
-            password_change_date: {
-                type: Sequelize.DATE,
-            },
             createdAt: {
                 type: Sequelize.DATE,
                 allowNull: false,

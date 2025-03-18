@@ -1,5 +1,15 @@
 console.log('Köszönöm hogy a WebNotes alkalmazást használod! 😊')
 
+document.addEventListener('focusin', function (e) {
+    if (
+        e.target.closest(
+            '.tox-hugerte-aux, .moxman-window, .tam-assetmanager-root, .hugerte, .hugerte-modal, .hugerte-dialog'
+        ) !== null
+    ) {
+        e.stopImmediatePropagation()
+    }
+})
+
 document.addEventListener('DOMContentLoaded', () => {
     const tagInput = document.getElementById('tagInput')
     const tagContainer = document.getElementById('tag-container')
@@ -165,6 +175,10 @@ function renderNotes(notesToRender) {
       <a class="dropdown-item" href="#" onclick="openNoteModal(${note.id})">
         <i class="ti ti-edit icon dropdown-item-icon"></i>
         Szerkesztés
+      </a>
+       <a class="dropdown-item" href="#" onclick="shareModal(${note.id})">
+        <i class="ti ti-share icon dropdown-item-icon"></i>
+        Megosztás
       </a>
       <a class="dropdown-item text-danger" href="#" onclick="deleteNote(${note.id})">
         <i class="ti ti-trash icon dropdown-item-icon"></i>
