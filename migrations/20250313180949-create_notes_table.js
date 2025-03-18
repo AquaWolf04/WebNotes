@@ -24,6 +24,14 @@ module.exports = {
             content: {
                 type: Sequelize.TEXT,
             },
+            isPinned: {
+                type: Sequelize.BOOLEAN,
+                defaultValue: false,
+            },
+            isImportant: {
+                type: Sequelize.BOOLEAN,
+                defaultValue: false,
+            },
             createdAt: {
                 type: Sequelize.DATE,
                 allowNull: false,

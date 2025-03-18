@@ -22,7 +22,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function createTagElement(tag) {
         const tagElement = document.createElement('div')
-        tagElement.classList.add('badge', 'bg-primary', 'me-1', 'p-2', 'text-white')
+        tagElement.classList.add(
+            'badge',
+            'bg-primary',
+            'me-1',
+            'p-2',
+            'text-white'
+        )
         tagElement.textContent = tag
 
         const removeBtn = document.createElement('span')
@@ -65,7 +71,11 @@ document.addEventListener('DOMContentLoaded', () => {
     })
 
     tagInput.addEventListener('keydown', (event) => {
-        if (event.key === 'Backspace' && tagInput.value === '' && tags.length > 0) {
+        if (
+            event.key === 'Backspace' &&
+            tagInput.value === '' &&
+            tags.length > 0
+        ) {
             const lastTag = tags.pop()
             updateHiddenInput()
             ;[...tagContainer.getElementsByClassName('badge')].pop().remove()
@@ -73,9 +83,11 @@ document.addEventListener('DOMContentLoaded', () => {
     })
 
     // Amikor megnyílik a modal
-    document.getElementById('noteModal').addEventListener('show.bs.modal', (event) => {
-        updateTagUI() // Mindig frissíti a címkéket a meglévő hidden input alapján
-    })
+    document
+        .getElementById('noteModal')
+        .addEventListener('show.bs.modal', (event) => {
+            updateTagUI() // Mindig frissíti a címkéket a meglévő hidden input alapján
+        })
 })
 document.addEventListener('DOMContentLoaded', function () {
     let options = {
@@ -159,69 +171,101 @@ function renderNotes(notesToRender) {
     }
 
     noteList.innerHTML = notesToRender
-        .map(
-            (note) => `
-<div class="col-md-4 mb-4">
-<div class="card card-sm h-100">
-<div class="card-header">
-<div class="d-flex justify-content-between align-items-center w-100">
-<h3 class="card-title text-truncate mb-0" title="${escapeHtml(note.title)}">${escapeHtml(note.title)}</h3>
-<div class="card-actions">
-  <div class="dropdown">
-    <a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
-      <i class="ti ti-dots-vertical"></i>
-    </a>
-    <div class="dropdown-menu dropdown-menu-end">
-      <a class="dropdown-item" href="#" onclick="openNoteModal(${note.id})">
-        <i class="ti ti-edit icon dropdown-item-icon"></i>
-        Szerkesztés
-      </a>
-       <a class="dropdown-item" href="#" onclick="shareModal(${note.id})">
-        <i class="ti ti-share icon dropdown-item-icon"></i>
-        Megosztás
-      </a>
-      <a class="dropdown-item text-danger" href="#" onclick="deleteNote(${note.id})">
-        <i class="ti ti-trash icon dropdown-item-icon"></i>
-        Törlés
-      </a>
-    </div>
-  </div>
-</div>
-</div>
-</div>
-<div class="card-body d-flex flex-column">
-<div class="card-text flex-grow-1 mb-3">
-${note.content}
-</div>
-<div class="mt-auto">
-<div class="d-flex justify-content-between align-items-center">
-  <div class="text-muted small">
-    <i class="ti ti-clock-hour-4 me-1"></i> ${
-        note.createdAt ? new Date(note.createdAt).toLocaleDateString('hu-HU') : 'Nincs dátum'
-    }
-  </div>
-</div>
-${
-    note.tags && note.tags.length > 0
-        ? `
-    <div class="mt-2">
-      ${note.tags
-          .map(
-              (tag) => `
-          <span class="badge bg-primary-lt me-1 mb-1">${escapeHtml(tag)}</span>
+        .map((note) => {
+            // Kártya osztályok és stílusok
+            let cardClass = 'card note-card h-100'
+            let badgeHTML = ''
+
+            // Kiemelési címkék létrehozása
+            let highlightBadge = ''
+            if (note.isPinned && note.isImportant) {
+                cardClass += ' border-gradient-red-gold' // Piros és arany kombinált keret
+                highlightBadge += `
+            <span class="badge highlight-badge bg-gradient-warning me-1"><i class="ti ti-pin"></i> Kiemelt</span>
+            <span class="badge highlight-badge bg-gradient-danger"><i class="ti ti-alert-circle"></i> Fontos</span>
         `
-          )
-          .join('')}
-    </div>
+            } else if (note.isPinned) {
+                cardClass += ' border-gradient-gold' // Kiemelt
+                highlightBadge += `<span class="badge highlight-badge bg-gradient-warning"><i class="ti ti-pin"></i> Kiemelt</span>`
+            } else if (note.isImportant) {
+                cardClass += ' border-gradient-red' // Fontos
+                highlightBadge += `<span class="badge highlight-badge bg-gradient-danger"><i class="ti ti-alert-circle"></i> Fontos</span>`
+            }
+
+            return `
+        <div class="col-md-4 mb-4">
+            <div class="${cardClass}">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title text-truncate mb-0" title="${escapeHtml(
+                        note.title
+                    )}">
+                        ${escapeHtml(note.title)}
+                    </h3>
+                    <div class="card-actions">
+                        <div class="dropdown">
+                            <a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="ti ti-dots-vertical"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <a class="dropdown-item" href="#" onclick="openNoteModal(${
+                                    note.id
+                                })">
+                                    <i class="ti ti-edit icon dropdown-item-icon"></i> Szerkesztés
+                                </a>
+                                <a class="dropdown-item" href="#" onclick="shareModal(${
+                                    note.id
+                                })">
+                                    <i class="ti ti-share icon dropdown-item-icon"></i> Megosztás
+                                </a>
+                                <a class="dropdown-item text-danger" href="#" onclick="deleteNote(${
+                                    note.id
+                                })">
+                                    <i class="ti ti-trash icon dropdown-item-icon"></i> Törlés
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <div class="card-text flex-grow-1 mb-3">
+                        ${note.content}
+                    </div>
+                    <div class="mt-auto">
+                        ${
+                            note.tags && note.tags.length > 0
+                                ? `
+                            <div class="tags-container">
+                                ${note.tags
+                                    .map(
+                                        (tag) =>
+                                            `<span class="badge tag-badge">${escapeHtml(
+                                                tag
+                                            )}</span>`
+                                    )
+                                    .join('')}
+                            </div>
+                        `
+                                : ''
+                        }
+                    </div>
+                    <div class="note-meta">
+                        <div class="small">
+                            <i class="ti ti-calendar-event me-1"></i> 
+                            ${
+                                note.createdAt
+                                    ? new Date(
+                                          note.createdAt
+                                      ).toLocaleDateString('hu-HU')
+                                    : 'Nincs dátum'
+                            }
+                        </div>
+                        <div>${highlightBadge}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     `
-        : ''
-}
-</div>
-</div>
-</div>
-</div>
-`
-        )
+        })
         .join('')
 }
 
@@ -237,7 +281,9 @@ function initSearchHandler() {
                 (note) =>
                     note.title.toLowerCase().includes(searchTerm) ||
                     note.content.toLowerCase().includes(searchTerm) ||
-                    note.tags.some((tag) => tag.toLowerCase().includes(searchTerm))
+                    note.tags.some((tag) =>
+                        tag.toLowerCase().includes(searchTerm)
+                    )
             )
             renderNotes(filteredNotes)
         }, 300)
@@ -246,6 +292,7 @@ function initSearchHandler() {
 
 function openNoteModal(noteId = null) {
     const noteForm = document.getElementById('noteForm')
+    let title = document.getElementById('title')
 
     if (!noteForm) {
         console.error('❌ A noteForm nem található!')
@@ -257,6 +304,7 @@ function openNoteModal(noteId = null) {
 
     if (noteId) {
         console.log('🔄 Szerkesztés mód')
+        title.innerHTML = '<i class="ti ti-edit me-2"></i> Jegyzet szerkesztése'
         noteForm.reset()
 
         // Új eseménykezelő a szerkesztéshez
@@ -281,10 +329,23 @@ function openNoteModal(noteId = null) {
                     document.getElementById('noteTitle').value = note.title
                     document.getElementById('noteId').value = note.id
 
+                    if (note.isPinned) {
+                        document.getElementById('notePinned').checked = true
+                    } else {
+                        document.getElementById('notePinned').checked = false
+                    }
+
+                    if (note.isImportant) {
+                        document.getElementById('noteImportant').checked = true
+                    } else {
+                        document.getElementById('noteImportant').checked = false
+                    }
+
                     if (hugerte.get('noteContent')) {
                         hugerte.get('noteContent').setContent(note.content)
                     } else {
-                        document.getElementById('noteContent').value = note.content
+                        document.getElementById('noteContent').value =
+                            note.content
                     }
 
                     updateTagUI(note.tags)
@@ -299,7 +360,8 @@ function openNoteModal(noteId = null) {
             })
     } else {
         console.log('➕ Új jegyzet mód')
-
+        title.innerHTML =
+            '<i class="ti ti-plus me-2"></i> Új jegyzet létrehozása'
         noteForm.reset()
 
         // Új eseménykezelő a mentéshez
@@ -328,7 +390,13 @@ function updateTagUI(tags) {
     // Új címkék hozzáadása
     tags.forEach((tag, index) => {
         const tagElement = document.createElement('span')
-        tagElement.classList.add('badge', 'bg-primary', 'me-1', 'p-2', 'text-white')
+        tagElement.classList.add(
+            'badge',
+            'bg-primary',
+            'me-1',
+            'p-2',
+            'text-white'
+        )
         tagElement.textContent = tag
 
         const removeBtn = document.createElement('span')
@@ -353,20 +421,24 @@ function resetTags() {
 }
 
 // Modal megnyitás eseményfigyelője
-document.getElementById('noteModal').addEventListener('show.bs.modal', function (event) {
-    const noteId = document.getElementById('noteId').value
-    console.log('🆔 Jegyzet ID:', noteId)
+document
+    .getElementById('noteModal')
+    .addEventListener('show.bs.modal', function (event) {
+        const noteId = document.getElementById('noteId').value
+        console.log('🆔 Jegyzet ID:', noteId)
 
-    if (noteId) {
-        // Ha van noteId, akkor szerkesztünk, tehát betöltjük a meglévő tageket
-        const hiddenTags = document.getElementById('hiddenTags').value
-        const tags = hiddenTags ? hiddenTags.split(',').map((tag) => tag.trim()) : []
-        updateTagUI(tags)
-    } else {
-        // Ha nincs noteId, akkor új jegyzet jön létre, tehát töröljük a címkéket
-        resetTags()
-    }
-})
+        if (noteId) {
+            // Ha van noteId, akkor szerkesztünk, tehát betöltjük a meglévő tageket
+            const hiddenTags = document.getElementById('hiddenTags').value
+            const tags = hiddenTags
+                ? hiddenTags.split(',').map((tag) => tag.trim())
+                : []
+            updateTagUI(tags)
+        } else {
+            // Ha nincs noteId, akkor új jegyzet jön létre, tehát töröljük a címkéket
+            resetTags()
+        }
+    })
 
 async function saveNote(event) {
     event.preventDefault()
@@ -377,6 +449,8 @@ async function saveNote(event) {
     const noteData = {
         title: formData.get('title'),
         content: hugerte.get('noteContent').getContent(),
+        isPinned: formData.get('isPinned') === 'on',
+        isImportant: formData.get('isImportant') === 'on',
         tags: hiddenTags
             ? hiddenTags
                   .split(',')
@@ -447,6 +521,8 @@ async function editNote(event, noteId) {
     const noteData = {
         title: formData.get('title'),
         content: content,
+        isPinned: formData.get('isPinned') === 'on',
+        isImportant: formData.get('isImportant') === 'on',
         tags: tags,
     }
     console.log('📌 Küldött adatok:', noteData)
@@ -519,7 +595,8 @@ function deleteNote(id) {
                 const response = await fetch(`/notes/delete/${id}`, {
                     method: 'DELETE',
                     headers: {
-                        'X-CSRF-Token': document.getElementById('csrf_token').value,
+                        'X-CSRF-Token':
+                            document.getElementById('csrf_token').value,
                     },
                 })
 
@@ -549,7 +626,9 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('[href^="?theme="]').forEach((link) => {
         link.addEventListener('click', (e) => {
             e.preventDefault()
-            const theme = e.currentTarget.href.includes('dark') ? 'dark' : 'light'
+            const theme = e.currentTarget.href.includes('dark')
+                ? 'dark'
+                : 'light'
             saveTheme(theme)
         })
     })

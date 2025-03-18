@@ -27,6 +27,14 @@ const Note = sequelize.define(
             type: DataTypes.TEXT,
             allowNull: false,
         },
+        isPinned: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+        },
+        isImportant: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+        },
     },
     {
         timestamps: true,
