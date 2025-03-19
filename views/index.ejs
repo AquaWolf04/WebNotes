@@ -33,7 +33,6 @@
                             </a>
                         </div>
 
-                        <!-- Ellenőrizzük, hogy van-e bejelentkezett felhasználó -->
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown">
                                 <span class="avatar avatar-sm rounded" id="user-avatar"></span>
@@ -48,7 +47,6 @@
 
                             <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
                                 <a href="/profile" class="dropdown-item"><i class="ti ti-user me-1"></i>Profil</a>
-                                <!--a href="/settings" class="dropdown-item"><i class="ti ti-settings me-1"></i>Beállítások</a-->
                                 <div class="dropdown-divider"></div>
                                 <a href="/logout" class="dropdown-item text-danger"> <i class="ti ti-logout me-1"></i>Kijelentkezés </a>
                             </div>
@@ -115,7 +113,7 @@
                         <div class="row text-center align-items-center flex-row-reverse">
                             <div class="col-12 col-lg-auto mt-3 mt-lg-0">
                                 <ul class="list-inline list-inline-dots mb-0">
-                                    <li class="list-inline-item"> Készítette Lupu Carlos (<a href="https://aquawolf04.com" class="link-secondary">aquawolf04.com</a>) </li>
+                                    <li class="list-inline-item"> Készítette: Lupu Carlos (<a href="https://aquawolf04.com" class="link-secondary">aquawolf04.com</a>) </li>
                                     <li class="list-inline-item"> Felasznált sablon: <a href="https://tabler.io" class="link-secondary" rel="noopener">Tabler</a> </li>
                                     <li class="list-inline-item"> Verzió: <span id="app-version"></span> </li>
                                 </ul>
@@ -138,7 +136,7 @@
                         </div>
 
                         <!-- Rejtett mezők -->
-                        <input type="hidden" id="noteId" name="noteId" />
+                        <input type="number" class="form-control" id="noteId" name="noteId" hidden="" />
                         <input type="hidden" id="csrf_token" name="_csrf" value="<%= csrfToken %>" />
 
                         <div class="modal-body">
@@ -161,10 +159,6 @@
                                     <div class="form-check">
                                         <input type="checkbox" class="form-check-input" id="notePinned" name="isPinned" />
                                         <label class="form-check-label" for="notePinned"><i class="ti ti-pin me-1"></i> Kiemelt</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" id="noteImportant" name="isImportant" />
-                                        <label class="form-check-label" for="noteImportant"><i class="ti ti-alert-circle me-1"></i> Fontos</label>
                                     </div>
                                 </div>
                             </div>

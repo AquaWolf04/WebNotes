@@ -1,5 +1,4 @@
 const { Note, Tag, User, NoteTag } = require('../models')
-const { Op } = require('sequelize')
 const logger = require('../../utils/logger')
 
 const save = async (req, res) => {
@@ -92,7 +91,6 @@ const list = async (req, res) => {
                 'createdAt',
                 'updatedAt',
                 'isPinned',
-                'isImportant',
             ],
             include: [
                 {
@@ -112,7 +110,6 @@ const list = async (req, res) => {
             createdAt: note.createdAt, // Helyes mezőnév!
             updatedAt: note.updatedAt, // Helyes mezőnév!
             isPinned: note.isPinned,
-            isImportant: note.isImportant,
         }))
 
         res.status(200).json({ status: 'success', notes: formattedNotes })
@@ -128,7 +125,7 @@ const list = async (req, res) => {
 const edit = async (req, res) => {
     try {
         const noteId = req.params.id
-        const { title, content, tags, isPinned, isImportant } = req.body
+        const { title, content, tags, isPinned } = req.body
 
         const user = await User.findByPk(req.session.userId, {
             attributes: ['id'],
@@ -150,7 +147,6 @@ const edit = async (req, res) => {
         note.content = content
         note.updatedAt = new Date()
         note.isPinned = isPinned
-        note.isImportant = isImportant
         await note.save()
 
         if (tags) {
@@ -234,7 +230,6 @@ const loadbyid = async (req, res) => {
                 createdAt: note.creation_date?.toISOString() || null,
                 updatedAt: note.modification_date?.toISOString() || null,
                 isPinned: note.isPinned,
-                isImportant: note.isImportant,
             },
         })
     } catch (error) {
