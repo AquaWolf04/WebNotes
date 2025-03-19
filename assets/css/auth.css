@@ -1,7 +1,7 @@
 @import url('https://rsms.me/inter/inter.css');
 :root {
-    --tblr-font-sans-serif: 'Inter Var', -apple-system, BlinkMacSystemFont,
-        San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
+    --tblr-font-sans-serif: 'Inter Var', -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto,
+        Helvetica Neue, sans-serif;
 }
 body {
     font-feature-settings: 'cv03', 'cv04', 'cv11';
@@ -56,6 +56,7 @@ body {
     transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
 }
 
+/* Figyelmeztető ikon a hibaüzenet elé */
 .error-message::before {
     content: '⚠';
     font-size: 16px;
@@ -68,7 +69,7 @@ body {
     transform: translateY(-5px);
 }
 
-/* Hiba esetén az input mező piros szegélyt kap */
+/* Hiba esetén az input mezők piros szegélyt kapnak */
 .input-error {
     border: 2px solid #ff4d4d !important;
     box-shadow: 0 0 5px rgba(255, 77, 77, 0.5);
@@ -81,7 +82,17 @@ body {
     box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
 
-/* Figyelmeztető ikon megjelenítése a jobb oldalon */
+/* Input group kezelése hibák esetén */
+.input-group.has-error .form-control,
+.input-group.has-error .input-group-text {
+    border: 2px solid #ff4d4d !important;
+}
+
+.input-group.has-error .form-control:focus {
+    border: 2px solid #007bff !important;
+}
+
+/* Figyelmeztető ikon megjelenítése a jobb oldalon normál inputoknál */
 .input-wrapper {
     position: relative;
 }
@@ -97,6 +108,14 @@ body {
     transition: opacity 0.3s ease-in-out;
 }
 
+/* Input csoportokhoz igazított hibaikon */
+.input-group .error-icon {
+    right: 45px; /* Igazítás az info ikon mellé */
+    z-index: 5;
+}
+
+/* Ha nincs hiba, akkor az ikon elrejtődik */
 .hidden-icon {
     opacity: 0;
+    pointer-events: none;
 }

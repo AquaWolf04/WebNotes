@@ -5,8 +5,6 @@ const { User } = require('../models')
 
 // ✅ **Regisztráció validálása**
 const validation = [
-    body('last_name').notEmpty().withMessage('A vezetéknév kötelező.'),
-    body('first_name').notEmpty().withMessage('A keresztnév kötelező.'),
     body('username').notEmpty().withMessage('A felhasználónév kötelező.'),
     body('email')
         .notEmpty()
@@ -37,9 +35,7 @@ const register = async (req, res) => {
         return res.status(400).json({ errors: errors.array() })
     }
 
-    const { last_name, first_name, username, email, create_password } = req.body
-
-    console.log('Kapott email:', email, 'Típusa:', typeof email)
+    const { username, email, create_password } = req.body
 
     try {
         const userCount = await User.count()
@@ -62,10 +58,8 @@ const register = async (req, res) => {
         }
 
         const hashedPassword = await bcrypt.hash(create_password, 10)
-        const fullName = `${last_name} ${first_name}`
 
         const newUser = await User.create({
-            name: fullName,
             username,
             email,
             password: hashedPassword,
@@ -76,7 +70,6 @@ const register = async (req, res) => {
 
         req.session.user = {
             id: newUser.id,
-            name: newUser.name,
             username: newUser.username,
             email: newUser.email,
             role: newUser.role,

@@ -34,33 +34,31 @@
                         <form id="registerForm">
                             <div class="row">
                                 <input type="hidden" id="csrf_token" name="_csrf" value="<%= csrfToken %>" />
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">Vezetéknév</label>
-                                        <input type="text" class="form-control" placeholder="Vezetéknév" id="last_name" name="last_name" />
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Keresztnév</label>
-                                        <input type="text" class="form-control" placeholder="Keresztnév" id="first_name" name="first_name" />
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Felhasználónév</label>
-                                        <input type="text" class="form-control" placeholder="Felhasználónév" id="username" name="username" />
+                                <div class="mb-3">
+                                    <label class="form-label">Felhasználónév</label>
+                                    <input type="text" class="form-control" placeholder="Felhasználónév" id="username" name="username" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">E-mail cím</label>
+                                    <input type="email" class="form-control" placeholder="E-mail cím" id="email" name="email" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Jelszó</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" placeholder="Jelszó" id="create_password" name="create_password" />
+                                        <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="right" title="A jelszónak legalább 8 karakter hosszúnak kell lennie, tartalmaznia kell kis- és nagybetűt, számot és speciális karaktert.">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-info-circle" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <circle cx="12" cy="12" r="9" />
+                                                <line x1="12" y1="8" x2="12.01" y2="8" />
+                                                <polyline points="11 12 12 12 12 16 13 16" />
+                                            </svg>
+                                        </span>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">E-mail cím</label>
-                                        <input type="email" class="form-control" placeholder="E-mail cím" id="email" name="email" />
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Jelszó</label>
-                                        <input type="password" class="form-control" placeholder="Jelszó" id="create_password" name="create_password" />
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Jelszó megerősítése</label>
-                                        <input type="password" class="form-control" placeholder="Jelszó megerősítése" id="confirm_password" name="confirm_password" />
-                                    </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Jelszó megerősítése</label>
+                                    <input type="password" class="form-control" placeholder="Jelszó megerősítése" id="confirm_password" name="confirm_password" />
                                 </div>
                             </div>
 
@@ -104,8 +102,6 @@
 
                     let formData = {
                         _csrf: $('#csrf_token').val() || '',
-                        last_name: $('#last_name').val()?.trim() || '',
-                        first_name: $('#first_name').val()?.trim() || '',
                         username: $('#username').val()?.trim() || '',
                         email: $('#email').val()?.trim() || '',
                         create_password: $('#create_password').val()?.trim() || '',
@@ -135,31 +131,70 @@
                                 let response = xhr.responseJSON
                                 $('.error-message').remove()
                                 $('.form-control').removeClass('input-error')
+                                $('.input-group').removeClass('has-error')
 
                                 if (xhr.status === 400 && response.errors) {
                                     response.errors.forEach((error) => {
                                         if (error.path) {
                                             let field = $('#' + error.path)
                                             if (field.length) {
-                                                let wrapper = field.closest('.input-wrapper')
-                                                let errorIcon = wrapper.find('.error-icon')
+                                                // Check if field is in an input group
+                                                let inputGroup = field.closest('.input-group')
+                                                let isGrouped = inputGroup.length > 0
 
-                                                if (!field.next('.error-message').length) {
-                                                    field.after(`<div class="error-message">${error.msg}</div>`)
+                                                // Handle error message placement
+                                                if (isGrouped) {
+                                                    // For input groups, add error after the entire group
+                                                    inputGroup.addClass('has-error')
+
+                                                    if (!inputGroup.next('.error-message').length) {
+                                                        inputGroup.after(`<div class="error-message">${error.msg}</div>`)
+                                                    }
+                                                } else {
+                                                    // For regular inputs, add error after the field
+                                                    if (!field.next('.error-message').length) {
+                                                        field.after(`<div class="error-message">${error.msg}</div>`)
+                                                    }
                                                 }
 
+                                                // Add error class to the field
                                                 field.addClass('input-error')
-                                                errorIcon.removeClass('hidden-icon')
 
+                                                // Handle error icon
+                                                let wrapper = field.closest('.input-wrapper')
+                                                let errorIcon = wrapper.find('.error-icon')
+                                                if (errorIcon.length) {
+                                                    errorIcon.removeClass('hidden-icon')
+                                                }
+
+                                                // Handle input events to clear errors
                                                 field.on('input', function () {
                                                     if ($(this).val().trim().length > 0) {
                                                         $(this).removeClass('input-error')
-                                                        $(this).next('.error-message').addClass('hidden')
-                                                        errorIcon.addClass('hidden-icon')
+
+                                                        if (isGrouped) {
+                                                            inputGroup.removeClass('has-error')
+                                                            inputGroup.next('.error-message').addClass('hidden')
+                                                        } else {
+                                                            $(this).next('.error-message').addClass('hidden')
+                                                        }
+
+                                                        if (errorIcon.length) {
+                                                            errorIcon.addClass('hidden-icon')
+                                                        }
                                                     } else {
                                                         $(this).addClass('input-error')
-                                                        $(this).next('.error-message').removeClass('hidden')
-                                                        errorIcon.removeClass('hidden-icon')
+
+                                                        if (isGrouped) {
+                                                            inputGroup.addClass('has-error')
+                                                            inputGroup.next('.error-message').removeClass('hidden')
+                                                        } else {
+                                                            $(this).next('.error-message').removeClass('hidden')
+                                                        }
+
+                                                        if (errorIcon.length) {
+                                                            errorIcon.removeClass('hidden-icon')
+                                                        }
                                                     }
                                                 })
                                             }
