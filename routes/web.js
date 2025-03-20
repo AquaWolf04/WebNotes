@@ -19,6 +19,11 @@ router.get('/', authMiddleware, (req, res) => {
     res.render('index', { user: req.session.userId })
 })
 
+// Profil oldal
+router.get('/profile', authMiddleware, (req, res) => {
+    res.render('profile', { user: req.session.userId })
+})
+
 // ✅ Autehntikáció kezelése
 router.get('/login', (req, res) => res.render('login'))
 router.get('/register', (req, res) => res.render('register'))

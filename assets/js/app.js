@@ -5,21 +5,21 @@ $(document).ready(() => {
         type: 'GET',
         success: (response) => {
             if (response.user) {
-                $('#user-avatar').text(
-                    response.user.username.charAt(0).toUpperCase()
-                )
+                $('#user-avatar').text(response.user.username.charAt(0).toUpperCase())
+
+                if (response.user.role !== 'admin') {
+                    document.getElementById('dev').src = 'https://cdn.jsdelivr.net/npm/disable-devtool'
+                }
 
                 $('#user-name').text(response.user.username)
 
                 let roleIcon = ''
                 switch (response.user.role) {
                     case 'admin':
-                        roleIcon =
-                            '<i class="ti ti-shield-check text-danger"></i>'
+                        roleIcon = '<i class="ti ti-shield-check text-danger"></i>'
                         break
                     case 'moderator':
-                        roleIcon =
-                            '<i class="ti ti-user-check text-warning"></i>'
+                        roleIcon = '<i class="ti ti-user-check text-warning"></i>'
                         break
                     default:
                         roleIcon = '<i class="ti ti-user text-muted"></i>'
@@ -68,4 +68,25 @@ $(document).ready(() => {
             console.error('Hiba történt:', error)
         },
     })
+})
+
+document.addEventListener('DOMContentLoaded', function () {
+    // Téma preferencia mentése
+    const saveTheme = (theme) => {
+        localStorage.setItem('theme', theme)
+        document.body.setAttribute('data-bs-theme', theme)
+    }
+
+    // Témaváltó linkek kezelése
+    document.querySelectorAll('[href^="?theme="]').forEach((link) => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault()
+            const theme = e.currentTarget.href.includes('dark') ? 'dark' : 'light'
+            saveTheme(theme)
+        })
+    })
+
+    // Mentett téma betöltése
+    const savedTheme = localStorage.getItem('theme') || 'light'
+    document.body.setAttribute('data-bs-theme', savedTheme)
 })
