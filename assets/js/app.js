@@ -11,7 +11,8 @@ $(document).ready(() => {
                     document.getElementById('dev').src = 'https://cdn.jsdelivr.net/npm/disable-devtool'
                 }
 
-                $('#user-name').text(response.user.username)
+                $('#username').text(response.user.username)
+                $('#defusername').val(response.user.username)
 
                 let roleIcon = ''
                 switch (response.user.role) {
@@ -26,7 +27,8 @@ $(document).ready(() => {
                 }
                 $('#user-role-icon').html(roleIcon)
 
-                $('#user-email').text(response.user.email)
+                $('#email').text(response.user.email)
+                $('#defemail').val(response.user.email)
             }
         },
         error: (xhr, status, error) => {
