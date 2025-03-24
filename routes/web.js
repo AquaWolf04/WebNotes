@@ -25,11 +25,9 @@ router.get('/', authMiddleware, (req, res) => {
 router.get('/account', authMiddleware, (req, res) => {
     res.render('account', { user: req.session.userId })
 })
-router.post(
-    '/account/change-email',
-    csrfProtection,
-    AccountController.changeEmail
-)
+router.post('/account/change-email', csrfProtection, authMiddleware, AccountController.changeEmail)
+
+router.get('/account/confirm-email-change/:token', authMiddleware, AccountController.confirmEmailChange)
 
 // ✅ Autehntikáció kezelése
 router.get('/login', (req, res) => res.render('login'))
@@ -37,12 +35,7 @@ router.get('/register', (req, res) => res.render('register'))
 
 router.post('/login', csrfProtection, LoginController.login)
 router.get('/logout', LoginController.logout)
-router.post(
-    '/register',
-    csrfProtection,
-    RegisterController.validation,
-    RegisterController.register
-)
+router.post('/register', csrfProtection, RegisterController.validation, RegisterController.register)
 
 // ✅ API végpontok
 router.get('/api/version', AppController.getVer)

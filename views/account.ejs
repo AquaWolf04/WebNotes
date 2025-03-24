@@ -3,6 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="csrf-token" content="<%= csrfToken %>" />
         <title>WebNotes - Fiók</title>
         <link rel="stylesheet" href="/css/tabler.min.css" />
         <link href="/css/tabler-icons-outline.min.css" rel="stylesheet" />
@@ -141,7 +142,6 @@
                                 <label class="form-label">Új email cím</label>
                                 <input type="email" class="form-control" id="newEmail" placeholder="admin@webnotes.hu" required />
                             </div>
-                            <input type="hidden" id="csrf_token" name="_csrf" value="<%= csrfToken %>" />
                             <div class="mb-3">
                                 <label class="form-label">Jelenlegi jelszó</label>
                                 <input type="password" class="form-control" id="currentPasswordForChangeEmail" placeholder="••••••••" required />

@@ -5,12 +5,14 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault()
 
         const email = document.getElementById('newEmail').value.trim()
-        const password = document.getElementById(
-            'currentPasswordForChangeEmail'
-        ).value
+        const password = document.getElementById('currentPasswordForChangeEmail').value
 
         if (!email || !password) {
-            alert('Minden mezőt ki kell tölteni!')
+            Swal.fire({
+                icon: 'error',
+                title: 'Hiba történt!',
+                text: 'Az összes mező kitöltése kötelező!',
+            })
             return
         }
 
@@ -19,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-Token': $('#csrf_token').val(),
+                    'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                 },
                 body: JSON.stringify({ email, password }),
             })
@@ -29,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.success) {
                 Swal.fire({
                     icon: 'success',
-                    title: 'Az email címed sikeresen megváltozott!',
+                    title: 'Ki küldtünk egy megerősítő e-mailt!',
                     showConfirmButton: false,
                     timer: 1500,
                 })

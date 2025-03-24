@@ -1,6 +1,7 @@
 const { User } = require('../../app/models')
 const bcrypt = require('bcryptjs')
 
+// Bejelentkezés
 const login = async (req, res) => {
     const { username, password } = req.body
 
@@ -24,6 +25,7 @@ const login = async (req, res) => {
     }
 }
 
+// Kijelentkezés
 const logout = (req, res) => {
     req.session.destroy((err) => {
         if (err) {

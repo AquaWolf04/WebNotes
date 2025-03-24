@@ -4,6 +4,7 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <meta name="csrf-token" content="<%= csrfToken %>" />
         <title> WebNotes -//- Bejelentkezés </title>
         <link href="/css/tabler.min.css" rel="stylesheet" />
         <link href="/css/auth.css" rel="stylesheet" />
@@ -83,7 +84,6 @@
                     $submitButton.prop('disabled', true).html(`<i class="ti ti-loader-2 spinner-rotate"></i> Bejelentkezés...`)
 
                     let formData = {
-                        _csrf: $('#csrf_token').val(),
                         username: $('#username').val(),
                         password: $('#password').val(),
                     }
@@ -92,7 +92,7 @@
                         type: 'POST',
                         url: '/login',
                         contentType: 'application/json',
-                        headers: { 'X-CSRF-Token': $('#csrf_token').val() },
+                        headers: { 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
                         data: JSON.stringify(formData),
                         success: function (response) {
                             if (response.success) {

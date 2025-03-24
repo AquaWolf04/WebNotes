@@ -437,7 +437,7 @@ async function saveNote(event) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-Token': formData.get('_csrf'),
+                'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
             },
             body: JSON.stringify(noteData),
         })
@@ -502,7 +502,7 @@ async function editNote(event, noteId) {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-Token': formData.get('_csrf'),
+                'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
             },
             body: JSON.stringify(noteData),
         })
@@ -564,7 +564,7 @@ function deleteNote(id) {
                 const response = await fetch(`/notes/delete/${id}`, {
                     method: 'DELETE',
                     headers: {
-                        'X-CSRF-Token': document.getElementById('csrf_token').value,
+                        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                     },
                 })
 

@@ -3,6 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="csrf-token" content="<%= csrfToken %>" />
         <title>WebNotes -//- Regisztráció</title>
         <link href="/css/tabler.min.css" rel="stylesheet" />
         <link href="/css/demo.min.css" rel="stylesheet" />
@@ -102,7 +103,6 @@
                     $submitButton.prop('disabled', true).html(`<i class="ti ti-loader-2 spinner-rotate"></i> Regisztráció...`)
 
                     let formData = {
-                        _csrf: $('#csrf_token').val() || '',
                         username: $('#username').val()?.trim() || '',
                         email: $('#email').val()?.trim() || '',
                         create_password: $('#create_password').val()?.trim() || '',
@@ -113,6 +113,7 @@
                         type: 'POST',
                         url: '/register',
                         contentType: 'application/json',
+                        headers: { 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
                         data: JSON.stringify(formData),
                         success: function (response) {
                             if (response.success) {

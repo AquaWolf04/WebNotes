@@ -3,7 +3,7 @@ const logger = require('../../utils/logger')
 const { body, validationResult } = require('express-validator')
 const { User } = require('../models')
 
-// ✅ **Regisztráció validálása**
+// Regisztrációs validáció
 const validation = [
     body('username').notEmpty().withMessage('A felhasználónév kötelező.'),
     body('email')
@@ -25,6 +25,7 @@ const validation = [
         .withMessage('A jelszavak nem egyeznek.'),
 ]
 
+// Regisztráció
 const register = async (req, res) => {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {

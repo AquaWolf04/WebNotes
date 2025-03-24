@@ -1,10 +1,8 @@
 const { User } = require('../../app/models')
 const { sendEmailVerification } = require('../../utils/mailer')
+const jwt = require('jsonwebtoken')
 
-/*
- *   Email cím modosítása
- */
-
+// Email cím megváltoztatásához szükséges SMTP email küldése
 const changeEmail = async (req, res) => {
     try {
         // Bejelentkezett felhasználó lekérése
@@ -40,14 +38,11 @@ const changeEmail = async (req, res) => {
                 message: 'Ez az email cím már foglalt!',
             })
         }
-        console.log('🟢 Küldjük az emailt ide:', newEmail)
-
         await sendEmailVerification(user, newEmail, user.email)
 
         return res.json({
             success: true,
-            message:
-                'Az email címed megváltoztatásához szükséges lépéseket elküldtük a megadott email címre!',
+            message: 'Az email címed megváltoztatásához szükséges lépéseket elküldtük a megadott email címre!',
         })
 
         // SMTP email ki küldése a régi és az új email címre
@@ -60,6 +55,61 @@ const changeEmail = async (req, res) => {
     }
 }
 
+// Email cím megváltoztatásának megerősítése
+const confirmEmailChange = async (req, res) => {
+    const token = req.params.token
+
+    if (!token) {
+        return res.status(400).json({
+            success: false,
+            message: 'Hiányzik a token!',
+        })
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.EMAIL_SECRET)
+
+        const user = await User.findByPk(decoded.userId)
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'Felhasználó nem található!',
+            })
+        }
+
+        // Email frissítés csak akkor, ha még nem egyezik
+        if (user.email === decoded.newEmail) {
+            return res.status(400).json({
+                success: false,
+                message: 'Ez az email cím már be van állítva.',
+            })
+        }
+
+        user.email = decoded.newEmail
+        await user.save()
+
+        return res.status(200).json({
+            success: true,
+            message: 'Az email címed sikeresen megváltoztatva!',
+        })
+    } catch (err) {
+        if (err.name === 'TokenExpiredError') {
+            return res.status(400).json({
+                success: false,
+                message: 'A megerősítő link lejárt!',
+            })
+        }
+
+        console.error('❌ Confirm email change error:', err)
+        return res.status(500).json({
+            success: false,
+            message: 'Szerverhiba történt. Próbáld újra később!',
+        })
+    }
+}
+
 module.exports = {
     changeEmail,
+    confirmEmailChange,
 }

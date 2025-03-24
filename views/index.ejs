@@ -3,6 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="csrf-token" content="<%= csrfToken %>" />
         <title>WebNotes - Jegyzetek</title>
         <link rel="stylesheet" href="/css/tabler.min.css" />
         <link href="/css/tabler-icons-outline.min.css" rel="stylesheet" />
@@ -134,8 +135,6 @@
                         </div>
 
                         <input type="number" class="form-control" id="noteId" name="noteId" hidden="" />
-                        <input type="hidden" id="csrf_token" name="_csrf" value="<%= csrfToken %>" />
-
                         <div class="modal-body">
                             <div class="mb-3">
                                 <label for="noteTitle" class="form-label required"><i class="ti ti-heading me-1"></i> Cím</label>
