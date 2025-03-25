@@ -1,6 +1,6 @@
 {
     "name": "webnotes",
-    "version": "1.0.0",
+    "version": "0.27",
     "main": "server.js",
     "scripts": {
         "start": "nodemon server.js"
@@ -13,6 +13,7 @@
         "connect-session-sequelize": "^7.1.7",
         "cookie-parser": "^1.4.7",
         "cors": "^2.8.5",
+        "crypto": "^1.0.1",
         "csurf": "^1.10.0",
         "dotenv": "^16.4.5",
         "ejs": "^3.1.10",

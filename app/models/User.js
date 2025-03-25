@@ -54,4 +54,8 @@ User.prototype.validPassword = function (inputPassword) {
     return bcrypt.compareSync(inputPassword, this.password)
 }
 
+User.prototype.generateHash = function (password) {
+    return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null)
+}
+
 module.exports = User

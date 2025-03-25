@@ -10,22 +10,22 @@ const sendEmailVerification = async (user, newEmail, oldEmail) => {
     await transporter.sendMail({
         from: '"WebNotes" <no-reply@webnotes.hu>',
         to: newEmail,
-        subject: 'Email cím megerősítése',
+        subject: '📩 WebNotes – Email cím megerősítése',
         html: `
-        <div style="font-family: Arial, sans-serif; background-color: #f4f4f7; padding: 30px;">
+          <div style="font-family: Arial, sans-serif; background-color: #f4f4f7; padding: 30px;">
             <div style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-            <h2 style="color: #206bc4; margin-bottom: 20px;">Email cím megerősítése</h2>
-            <p style="font-size: 16px; color: #333;">Szia <strong>${user.username}</strong>!</p>
-            <p style="font-size: 16px; color: #333;">Az email címed módosítását kezdeményezted a <strong>WebNotes</strong> fiókodban.</p>
-            <p style="font-size: 16px; color: #333;">Kattints az alábbi gombra a megerősítéshez:</p>
-            <div style="text-align: center; margin: 30px 0;">
-                <a href="${verificationUrl}" style="display: inline-block; padding: 12px 24px; background-color: #206bc4; color: #fff; text-decoration: none; border-radius: 6px; font-size: 16px;">Email megerősítése</a>
+              <h2 style="color: #206bc4;">📩 Email cím megerősítése</h2>
+              <p>Szia <strong>${user.username}</strong>!</p>
+              <p>A <strong>WebNotes</strong> fiókodhoz email cím módosítást kezdeményeztél.</p>
+              <p>Kérlek kattints az alábbi gombra a megerősítéshez:</p>
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${verificationUrl}" style="display: inline-block; background-color: #206bc4; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold;">✅ Email megerősítése</a>
+              </div>
+              <p style="font-size: 14px; color: #555;">Ha nem te voltál, hagyd figyelmen kívül ezt az üzenetet.</p>
+              <hr style="margin-top: 30px; border: none; border-top: 1px solid #eee;">
+              <p style="font-size: 12px; color: #888;">Ez az üzenet automatikusan generálódott – kérlek ne válaszolj rá.</p>
             </div>
-            <p style="font-size: 14px; color: #666;">Ha nem te kezdeményezted, hagyd figyelmen kívül ezt az emailt.</p>
-            <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
-            <p style="font-size: 12px; color: #999; text-align: center;">© 2025 WebNotes • <a href="https://webnotes.hu" style="color: #999; text-decoration: none;">webnotes.hu</a></p>
-            </div>
-        </div>
+          </div>
         `,
     })
 
@@ -34,24 +34,53 @@ const sendEmailVerification = async (user, newEmail, oldEmail) => {
         await transporter.sendMail({
             from: '"WebNotes" <no-reply@webnotes.hu>',
             to: oldEmail,
-            subject: 'Email cím módosítás kezdeményezve',
+            subject: '⚠️ WebNotes – Email módosítás kezdeményezve',
             html: `
-            <div style="font-family: Arial, sans-serif; background-color: #f4f4f7; padding: 30px;">
+              <div style="font-family: Arial, sans-serif; background-color: #f4f4f7; padding: 30px;">
                 <div style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-                <h2 style="color: #206bc4; margin-bottom: 20px;">Figyelmeztetés: Email módosítási kísérlet</h2>
-                <p style="font-size: 16px; color: #333;">Szia <strong>${user.username}</strong>!</p>
-                <p style="font-size: 16px; color: #333;">Valaki megpróbálta módosítani a fiókod email címét erre: <strong>${newEmail}</strong></p>
-                <p style="font-size: 16px; color: #333;">Ha te voltál, nincs további teendőd, amíg nem kattintasz a megerősítő linkre az új emailben.</p>
-                <p style="font-size: 16px; color: #333;">Ha nem te voltál, kérlek <strong>változtasd meg a jelszavadat</strong> a biztonságod érdekében!</p>
-                <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
-                <p style="font-size: 12px; color: #999; text-align: center;">© 2025 WebNotes • <a href="https://webnotes.hu" style="color: #999; text-decoration: none;">webnotes.hu</a></p>
+                  <h2 style="color: #206bc4;">⚠️ Email módosítási kísérlet</h2>
+                  <p>Szia <strong>${user.username}</strong>!</p>
+                  <p>Valaki módosítani próbálta a WebNotes fiókod email címét erre: <strong>${newEmail}</strong>.</p>
+                  <p>Ha te voltál, nincs teendőd a megerősítésig.</p>
+                  <p>Ha nem te voltál, kérlek <strong>változtasd meg a jelszavad</strong> minél hamarabb!</p>
+                  <hr style="margin-top: 30px; border: none; border-top: 1px solid #eee;">
+                  <p style="font-size: 12px; color: #888;">Ez az üzenet automatikusan generálódott – kérlek ne válaszolj rá.</p>
                 </div>
-            </div>
+              </div>
             `,
         })
     }
 }
 
+const passwordChangedNotification = async (user) => {
+    await transporter.sendMail({
+        from: '"WebNotes" <no-reply@webnotes.hu>',
+        to: user.email,
+        subject: '🔐 WebNotes – Jelszavad megváltozott',
+        html: `
+          <div style="font-family: Arial, sans-serif; background-color: #f4f4f7; padding: 30px;">
+            <div style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+              <h2 style="color: #206bc4;">🔐 Jelszó módosítás történt</h2>
+              <p>Szia <strong>${user.username}</strong>!</p>
+              <p>A WebNotes fiókodhoz tartozó jelszót <strong>nemrég megváltoztatták</strong>.</p>
+              <p>Ha te végezted a módosítást, nincs teendőd.</p>
+              <p style="color: #d63939; font-weight: bold; margin-top: 20px;">
+                Ha nem te voltál, kérlek azonnal állítsd vissza a jelszavad vagy vedd fel velünk a kapcsolatot!
+              </p>
+              <div style="margin-top: 30px;">
+                <a href="https://webnotes.hu/reset-password" style="display: inline-block; background-color: #206bc4; color: #fff; padding: 10px 20px; border-radius: 6px; text-decoration: none;">
+                  🔁 Jelszó visszaállítása
+                </a>
+              </div>
+              <hr style="margin-top: 30px; border: none; border-top: 1px solid #eee;">
+              <p style="font-size: 12px; color: #888;">Ez az üzenet automatikusan generálódott – kérlek ne válaszolj rá.</p>
+            </div>
+          </div>
+        `,
+    })
+}
+
 module.exports = {
     sendEmailVerification,
+    passwordChangedNotification,
 }

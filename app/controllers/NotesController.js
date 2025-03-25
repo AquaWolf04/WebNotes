@@ -1,5 +1,6 @@
 const { Note, Tag, User, NoteTag } = require('../models')
 const logger = require('../../utils/logger')
+const { encryptJSON, decryptJSON } = require('../../utils/aesUtils')
 
 // Jegyzet mentése
 const save = async (req, res) => {
@@ -26,10 +27,16 @@ const save = async (req, res) => {
             return res.status(401).json({ status: 'error', message: 'Unauthorized' })
         }
 
+        const encrypted = encryptJSON({
+            content: noteData.content,
+            createdAt: new Date().toISOString(),
+        })
+
         const note = await Note.create({
             user_id: userId,
             title: noteData.title,
-            content: noteData.content,
+            content: encrypted.content, // titkosított content
+            iv: encrypted.iv, // inicializációs vektor külön mezőbe
             isPinned: noteData.isPinned ? 1 : 0,
             isImportant: noteData.isImportant ? 1 : 0,
         })
@@ -67,7 +74,7 @@ const save = async (req, res) => {
 
 // Jegyzetek listázása
 const list = async (req, res) => {
-    const userId = req.session.userId // Nincs szükség újabb DB lekérdezésre
+    const userId = req.session.userId
 
     if (!userId) {
         return res.status(401).json({ status: 'error', message: 'Unauthorized' })
@@ -76,26 +83,37 @@ const list = async (req, res) => {
     try {
         const notes = await Note.findAll({
             where: { user_id: userId },
-            attributes: ['id', 'title', 'content', 'createdAt', 'updatedAt', 'isPinned'],
+            attributes: ['id', 'title', 'content', 'iv', 'createdAt', 'updatedAt', 'isPinned'],
             include: [
                 {
                     model: Tag,
                     attributes: ['name'],
-                    through: { attributes: [] }, // Ne hozza vissza a kapcsolótáblát
+                    through: { attributes: [] },
                 },
             ],
         })
 
-        // Formázott válasz létrehozása
-        const formattedNotes = notes.map((note) => ({
-            id: note.id,
-            title: note.title,
-            content: note.content,
-            tags: note.Tags.map((tag) => tag.name), // Csak a tag nevek maradnak
-            createdAt: note.createdAt, // Helyes mezőnév!
-            updatedAt: note.updatedAt, // Helyes mezőnév!
-            isPinned: note.isPinned,
-        }))
+        const formattedNotes = notes.map((note) => {
+            let decryptedContent = ''
+            try {
+                decryptedContent = decryptJSON({
+                    content: note.content,
+                    iv: note.iv,
+                }).content
+            } catch (err) {
+                decryptedContent = '[Hibás titkosított tartalom]'
+            }
+
+            return {
+                id: note.id,
+                title: note.title,
+                content: decryptedContent,
+                tags: note.Tags.map((tag) => tag.name),
+                createdAt: note.createdAt,
+                updatedAt: note.updatedAt,
+                isPinned: note.isPinned,
+            }
+        })
 
         res.status(200).json({ status: 'success', notes: formattedNotes })
     } catch (error) {
@@ -126,7 +144,12 @@ const edit = async (req, res) => {
         }
 
         note.title = title
-        note.content = content
+        const encrypted = encryptJSON({
+            content: content,
+            updatedAt: new Date().toISOString(),
+        })
+        note.content = encrypted.content
+        note.iv = encrypted.iv
         note.updatedAt = new Date()
         note.isPinned = isPinned
         await note.save()
@@ -193,15 +216,25 @@ const loadbyid = async (req, res) => {
             return res.status(404).json({ status: 'error', message: 'Note not found' })
         }
 
+        let decryptedContent = ''
+        try {
+            decryptedContent = decryptJSON({
+                content: note.content,
+                iv: note.iv,
+            }).content
+        } catch (err) {
+            decryptedContent = '[Hibás titkosított tartalom]'
+        }
+
         res.status(200).json({
             status: 'success',
             note: {
                 id: note.id,
                 title: note.title,
-                content: note.content,
+                content: decryptedContent,
                 tags: note.Tags.map((tag) => tag.name),
-                createdAt: note.creation_date?.toISOString() || null,
-                updatedAt: note.modification_date?.toISOString() || null,
+                createdAt: note.createdAt,
+                updatedAt: note.updatedAt,
                 isPinned: note.isPinned,
             },
         })

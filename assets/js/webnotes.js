@@ -158,12 +158,11 @@ function renderNotes(notesToRender) {
         return
     }
 
-    // Kiemelt jegyzetek előre kerülnek
     notesToRender.sort((a, b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0))
 
     noteList.innerHTML = notesToRender
         .map((note) => {
-            let cardClass = 'card note-card h-100'
+            let cardClass = 'card note-card' // nincs h-100!
             let highlightBadge = ''
 
             if (note.isPinned && note.isImportant) {
@@ -188,7 +187,7 @@ function renderNotes(notesToRender) {
             }
 
             return `
-                <div onclick="openasd(${note.id})" class="col-md-4 mb-4">
+                <div onclick="readNotes(${note.id})" class="col-md-4 mb-4">
                     <div class="${cardClass}">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h3 class="card-title text-truncate mb-0" title="${escapeHtml(note.title)}">
@@ -215,7 +214,7 @@ function renderNotes(notesToRender) {
                         </div>
                         <div class="card-body d-flex flex-column">
                             <div class="card-text flex-grow-1 mb-3">
-                                ${note.content}
+                                ${truncateHtmlContent(note.content, 250)}
                             </div>
                             <div class="mt-auto">
                                 ${
@@ -246,18 +245,43 @@ function renderNotes(notesToRender) {
         .join('')
 }
 
-function openasd(s) {
-    //ajax request to get note
+function readNotes(id) {
     $.ajax({
-        url: '/notes/finbyid/' + s,
+        url: '/notes/finbyid/' + id,
         type: 'GET',
         success: function (data) {
-            console.log(data)
+            if (data.status === 'success') {
+                const note = data.note
+                console.log('Jegyzet:', note.title)
+                $('#nTitle').text(note.title)
+                $('#nContent').html(note.content)
+                $('#noteUpdated').text('Utoljára frissítve: ' + new Date(note.updatedAt).toLocaleString())
+
+                const modal = new bootstrap.Modal(document.getElementById('noteViewModal'))
+                modal.show()
+            } else {
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Nem sikerült betölteni a jegyzetet',
+                })
+            }
         },
         error: function (error) {
-            console.log(error)
+            console.error(error)
+            Toast.fire({
+                icon: 'error',
+                title: 'Szerverhiba történt',
+            })
         },
     })
+}
+
+// HTML-ből szöveg kivonása és rövidítése
+function truncateHtmlContent(html, maxLength) {
+    const tempDiv = document.createElement('div')
+    tempDiv.innerHTML = html
+    const text = tempDiv.textContent || tempDiv.innerText || ''
+    return text.length > maxLength ? text.substring(0, maxLength).trim() + '...' : text
 }
 
 function initSearchHandler() {

@@ -10,6 +10,10 @@ const NotesController = require('../app/controllers/NotesController.js')
 const AccountController = require('../app/controllers/AccountController.js')
 const { route } = require('express-named-router')
 
+// Validatorok importálása
+const { registerValidator } = require('../validators/registerValidator.js')
+const { changePasswordValidator } = require('../validators/changePasswordValidator.js')
+
 // ✅ CSRF védelem
 const csrfProtection = csrf({ cookie: true })
 
@@ -26,8 +30,14 @@ router.get('/account', authMiddleware, (req, res) => {
     res.render('account', { user: req.session.userId })
 })
 router.post('/account/change-email', csrfProtection, authMiddleware, AccountController.changeEmail)
-
 router.get('/account/confirm-email-change/:token', authMiddleware, AccountController.confirmEmailChange)
+router.post(
+    '/account/change-password',
+    csrfProtection,
+    authMiddleware,
+    changePasswordValidator,
+    AccountController.changePassword
+)
 
 // ✅ Autehntikáció kezelése
 router.get('/login', (req, res) => res.render('login'))
@@ -35,7 +45,7 @@ router.get('/register', (req, res) => res.render('register'))
 
 router.post('/login', csrfProtection, LoginController.login)
 router.get('/logout', LoginController.logout)
-router.post('/register', csrfProtection, RegisterController.validation, RegisterController.register)
+router.post('/register', csrfProtection, registerValidator, RegisterController.register)
 
 // ✅ API végpontok
 router.get('/api/version', AppController.getVer)

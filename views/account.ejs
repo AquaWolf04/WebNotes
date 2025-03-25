@@ -10,6 +10,16 @@
         <link href="/css/custom.css" rel="stylesheet" />
         <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.min.css" rel="stylesheet" />
     </head>
+    <style>
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
     <body>
         <div class="page">
             <header class="navbar navbar-expand-md navbar-light d-print-none">
@@ -60,7 +70,7 @@
                     <div class="container-xl">
                         <div class="row justify-content-center">
                             <div class="col-lg-8">
-                                <form class="card shadow-sm border-0">
+                                <div class="card shadow-sm border-0">
                                     <div class="card-header border-bottom">
                                         <h3 class="card-title mb-0">Fiók</h3>
                                     </div>
@@ -88,26 +98,39 @@
 
                                         <!-- Jelszó módosítás szekció -->
                                         <h4 class="card-subtitle mb-3">Jelszó módosítás</h4>
-                                        <div class="row g-4">
-                                            <div class="col-12">
-                                                <label for="currentPassword" class="form-label">Jelenlegi jelszó</label>
-                                                <input type="password" id="currentPassword" class="form-control" placeholder="Jelenlegi jelszó" />
+                                        <form id="passwordChangeForm">
+                                            <div class="row g-4">
+                                                <div class="col-12">
+                                                    <label for="currentPassword" class="form-label">Jelenlegi jelszó</label>
+                                                    <input type="password" id="currentPassword" class="form-control" placeholder="Jelenlegi jelszó" />
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="newPassword" class="form-label">Új jelszó</label>
+                                                    <div class="input-group">
+                                                        <input type="password" id="newPassword" class="form-control" placeholder="Új jelszó" />
+                                                        <span class="input-group-text" data-bs-toggle="tooltip" data-bs-placement="right" title="A jelszónak legalább 8 karakter hosszúnak kell lennie, tartalmaznia kell kis- és nagybetűt, számot és speciális karaktert.">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-info-circle" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                                <circle cx="12" cy="12" r="9" />
+                                                                <line x1="12" y1="8" x2="12.01" y2="8" />
+                                                                <polyline points="11 12 12 12 12 16 13 16" />
+                                                            </svg>
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <label for="confirmPassword" class="form-label">Új jelszó ismét</label>
+                                                    <input type="password" id="confirmPassword" class="form-control" placeholder="Új jelszó megerősítése" />
+                                                </div>
                                             </div>
-                                            <div class="col-md-6">
-                                                <label for="newPassword" class="form-label">Új jelszó</label>
-                                                <input type="password" id="newPassword" class="form-control" placeholder="Új jelszó" />
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="confirmPassword" class="form-label">Új jelszó ismét</label>
-                                                <input type="password" id="confirmPassword" class="form-control" placeholder="Új jelszó megerősítése" />
-                                            </div>
-                                        </div>
+                                        </form>
                                     </div>
                                     <div class="card-footer border-top text-end">
                                         <a href="/" class="btn btn-outline-info me-2"> <i class="ti ti-arrow-left me-1"></i> Vissza a jegyzetekhez </a>
-                                        <button type="submit" class="btn btn-primary"> <i class="ti ti-device-floppy me-1"></i> Profil frissítése </button>
+                                        <button type="button" id="changePasswordBtn" class="btn btn-primary" onclick="savePasswordChange()"> <i class="ti ti-lock-check me-1"></i> Jelszó mentése </button>
                                     </div>
-                                </form>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -153,7 +176,7 @@
                         </div>
                         <div class="modal-footer">
                             <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal"> <i class="ti ti-close me-1"></i> Mégse </a>
-                            <button type="submit" class="btn btn-primary ms-auto"> <i class="ti ti-send me-1"></i> Küldés </button>
+                            <button type="submit" class="btn btn-primary ms-auto" id="changeEmailBtn"> <i class="ti ti-send me-1"></i> Küldés </button>
                         </div>
                     </form>
                 </div>

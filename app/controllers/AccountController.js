@@ -1,6 +1,7 @@
 const { User } = require('../../app/models')
-const { sendEmailVerification } = require('../../utils/mailer')
+const { sendEmailVerification, passwordChangedNotification } = require('../../utils/mailer')
 const jwt = require('jsonwebtoken')
+const { validationResult } = require('express-validator')
 
 // Email cím megváltoztatásához szükséges SMTP email küldése
 const changeEmail = async (req, res) => {
@@ -109,7 +110,59 @@ const confirmEmailChange = async (req, res) => {
     }
 }
 
+// Jelszó megváltoztatása
+const changePassword = async (req, res) => {
+    try {
+        const errors = validationResult(req)
+        if (!errors.isEmpty()) {
+            return res.status(400).json({
+                success: false,
+                message: 'Hibás adatbevitel!',
+                errors: errors.array(),
+            })
+        }
+
+        const user = await User.findByPk(req.session.userId)
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'Felhasználó nem található!',
+            })
+        }
+
+        const currentPassword = req.body.currentPassword
+        const newPassword = req.body.newPassword
+        const confirmPassword = req.body.confirmPassword
+
+        if (newPassword !== confirmPassword) {
+            return res.status(400).json({
+                success: false,
+                message: 'A jelszavak nem egyeznek!',
+            })
+        }
+
+        user.password = user.generateHash(newPassword)
+        await user.save()
+
+        // Jelszó megváltozásáról email küldése
+        await passwordChangedNotification(user)
+
+        return res.status(200).json({
+            success: true,
+            message: 'A jelszavad sikeresen megváltoztatva!',
+        })
+    } catch (err) {
+        console.error('❌ Change password error:', err)
+        return res.status(500).json({
+            success: false,
+            message: 'Szerverhiba történt. Próbáld újra később!',
+        })
+    }
+}
+
 module.exports = {
     changeEmail,
     confirmEmailChange,
+    changePassword,
 }

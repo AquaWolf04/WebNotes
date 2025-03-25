@@ -1,9 +1,17 @@
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spinner-rotate {
+    animation: spin 1s linear infinite;
+}
 .promo-banner {
-    background: linear-gradient(
-        120deg,
-        rgba(30, 41, 59, 0.8) 0%,
-        rgba(44, 82, 130, 0.9) 100%
-    );
+    background: linear-gradient(120deg, rgba(30, 41, 59, 0.8) 0%, rgba(44, 82, 130, 0.9) 100%);
     border-radius: 8px;
     border: 1px solid rgba(88, 133, 208, 0.2);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -16,11 +24,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(
-        circle at 30% 50%,
-        rgba(99, 102, 241, 0.15) 0%,
-        transparent 80%
-    );
+    background: radial-gradient(circle at 30% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 80%);
     z-index: 1;
 }
 
@@ -48,11 +52,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-        135deg,
-        rgba(99, 102, 241, 0.5) 0%,
-        rgba(56, 189, 248, 0.3) 100%
-    );
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.5) 0%, rgba(56, 189, 248, 0.3) 100%);
     z-index: 1;
 }
 
@@ -121,8 +121,7 @@
 
 .note-card .card-header {
     background: transparent;
-    border-bottom: 1px solid
-        var(--tblr-border-color-light, rgba(98, 105, 118, 0.16));
+    border-bottom: 1px solid var(--tblr-border-color-light, rgba(98, 105, 118, 0.16));
     padding: 0 0 0.75rem 0;
 }
 
@@ -243,8 +242,7 @@
     align-items: center;
     margin-top: 0.75rem;
     padding-top: 0.75rem;
-    border-top: 1px solid
-        var(--tblr-border-color-light, rgba(98, 105, 118, 0.16));
+    border-top: 1px solid var(--tblr-border-color-light, rgba(98, 105, 118, 0.16));
 }
 
 .text-muted.small {

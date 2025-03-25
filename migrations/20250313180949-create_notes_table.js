@@ -28,6 +28,9 @@ module.exports = {
                 type: Sequelize.BOOLEAN,
                 defaultValue: false,
             },
+            iv: {
+                type: Sequelize.STRING(255),
+            },
             createdAt: {
                 type: Sequelize.DATE,
                 allowNull: false,

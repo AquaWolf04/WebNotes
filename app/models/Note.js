@@ -23,6 +23,10 @@ const Note = sequelize.define(
             type: DataTypes.STRING(255),
             allowNull: false,
         },
+        iv: {
+            type: DataTypes.STRING(255),
+            allowNull: false,
+        },
         content: {
             type: DataTypes.TEXT,
             allowNull: false,
