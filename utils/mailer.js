@@ -2,9 +2,13 @@ const transporter = require('../config/mailer')
 const jwt = require('jsonwebtoken')
 
 const sendEmailVerification = async (user, newEmail, oldEmail) => {
-    const token = jwt.sign({ userId: user.id, newEmail, oldEmail }, process.env.EMAIL_SECRET, { expiresIn: '10m' })
+    const token = jwt.sign(
+        { userId: user.id, newEmail, oldEmail },
+        process.env.EMAIL_SECRET,
+        { expiresIn: '10m' }
+    )
 
-    const verificationUrl = `https://webnotes.hu/account/confirm-email-change/${token}`
+    const verificationUrl = `http://localhost:3000/account/change-email/${token}`
 
     // 👉 Email az új címre – megerősítés
     await transporter.sendMail({
@@ -52,6 +56,36 @@ const sendEmailVerification = async (user, newEmail, oldEmail) => {
     }
 }
 
+const send6DigitCode = async (user, email, digits) => {
+    await transporter.sendMail({
+        from: '"WebNotes" <no-reply@webnotes.hu>',
+        to: email,
+        subject: '🔐 WebNotes – Email módosítás jóváhagyása',
+        html: `
+      <div style="font-family: Arial, sans-serif; background-color: #f4f4f7; padding: 30px;">
+        <div style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+          <h2 style="color: #206bc4;">🔐 Email módosítási kód</h2>
+          <p>Szia <strong>${user.username}</strong>!</p>
+          <p>A <strong>WebNotes</strong> fiókod email címének módosítását kezdeményezted.</p>
+          <p>A folytatáshoz használd az alábbi <strong>6 számjegyű kódot</strong> az űrlapon:</p>
+  
+          <div style="text-align: center; margin: 30px 25px;">
+            <div style="display: inline-block; font-size: 28px; letter-spacing: 12px; font-weight: bold; background-color: #f1f3f5; color: #206bc4; padding: 12px 24px; border-radius: 8px;">
+              ${digits}
+            </div>
+          </div>
+  
+          <p style="font-size: 15px; color: #555;">⏳ A kód <strong>10 percen belül</strong> lejár biztonsági okokból.</p>
+          <p style="font-size: 14px; color: #d63939;">❗ Ha nem te kezdeményezted, javasoljuk, hogy azonnal módosítsd a jelszavad!</p>
+  
+          <hr style="margin-top: 30px; border: none; border-top: 1px solid #eee;">
+          <p style="font-size: 12px; color: #888;">Ez az üzenet automatikusan generálódott – kérlek ne válaszolj rá.</p>
+        </div>
+      </div>
+    `,
+    })
+}
+
 const passwordChangedNotification = async (user) => {
     await transporter.sendMail({
         from: '"WebNotes" <no-reply@webnotes.hu>',
@@ -83,4 +117,5 @@ const passwordChangedNotification = async (user) => {
 module.exports = {
     sendEmailVerification,
     passwordChangedNotification,
+    send6DigitCode,
 }

@@ -1,12 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('emailChangeForm')
-    const submitBtn = document.getElementById('changeEmailBtn') // Gomb lekérése
+    const submitBtn = document.getElementById('changeEmailBtn')
+    const verifyBtn = document.getElementById('verifyCodeBtn')
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault()
 
         const email = document.getElementById('newEmail').value.trim()
-        const password = document.getElementById('currentPasswordForChangeEmail').value
+        const password = document.getElementById(
+            'currentPasswordForChangeEmail'
+        ).value
 
         if (!email || !password) {
             Swal.fire({
@@ -17,17 +20,17 @@ document.addEventListener('DOMContentLoaded', () => {
             return
         }
 
-        if (submitBtn) {
-            submitBtn.disabled = true
-            submitBtn.innerHTML = `<i class="ti ti-loader-2 spinner-rotate me-1"></i> Küldés...`
-        }
+        submitBtn.disabled = true
+        submitBtn.innerHTML = `<i class="ti ti-loader-2 spinner-rotate me-1"></i> Küldés...`
 
         try {
-            const res = await fetch('/account/change-email', {
+            const res = await fetch('/account/check-details', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'X-CSRF-Token': document
+                        .querySelector('meta[name="csrf-token"]')
+                        .getAttribute('content'),
                 },
                 body: JSON.stringify({ email, password }),
             })
@@ -35,19 +38,57 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await res.json()
 
             if (data.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Ki küldtünk egy megerősítő e-mailt!',
-                    showConfirmButton: false,
-                    timer: 1500,
+                // Modal 1 bezárása
+                const modal1 = bootstrap.Modal.getInstance(
+                    document.getElementById('modal-change-email')
+                )
+                modal1.hide()
+
+                // Kód mezők betöltése
+                const codeInputs = document.getElementById('code-inputs')
+                codeInputs.innerHTML = [...Array(6)]
+                    .map(
+                        () =>
+                            `<input type="text" maxlength="1" class="code-input" style="
+                        width: 40px;
+                        height: 50px;
+                        text-align: center;
+                        font-size: 24px;
+                        border: 2px solid #ccc;
+                        border-radius: 6px;
+                        outline: none;
+                        autocomplete="one-time-code"
+
+                    ">`
+                    )
+                    .join('')
+
+                // Modal 2 megnyitása
+                const modal2El = document.getElementById('modal-code-verify')
+                const modal2 = new bootstrap.Modal(modal2El)
+                modal2.show()
+
+                // Input fókusz és viselkedés
+                const inputs = modal2El.querySelectorAll('.code-input')
+                inputs.forEach((input, i) => {
+                    input.addEventListener('input', () => {
+                        if (input.value.length === 1 && i < inputs.length - 1) {
+                            inputs[i + 1].focus()
+                        }
+                    })
+
+                    input.addEventListener('keydown', (e) => {
+                        if (
+                            e.key === 'Backspace' &&
+                            input.value === '' &&
+                            i > 0
+                        ) {
+                            inputs[i - 1].focus()
+                        }
+                    })
                 })
 
-                // Modál bezárása
-                const modalEl = document.getElementById('modal-change-email')
-                const modal = bootstrap.Modal.getInstance(modalEl)
-                modal.hide()
-
-                // Űrlap törlése (ha kell)
+                // Űrlap törlése
                 form.reset()
             } else {
                 Swal.fire({
@@ -64,11 +105,66 @@ document.addEventListener('DOMContentLoaded', () => {
                 text: 'Kérlek próbáld újra később!',
             })
         } finally {
-            // Gomb visszaállítása
-            if (submitBtn) {
-                submitBtn.disabled = false
-                submitBtn.innerHTML = `<i class="ti ti-send me-1"></i> Küldés`
+            submitBtn.disabled = false
+            submitBtn.innerHTML = `<i class="ti ti-send me-1"></i> Küldés`
+        }
+    })
+
+    // Modal 2: Kód validálása
+    verifyBtn.addEventListener('click', async () => {
+        const inputs = document.querySelectorAll('.code-input')
+        const code = Array.from(inputs)
+            .map((i) => i.value)
+            .join('')
+
+        if (code.length !== 6 || !/^\d{6}$/.test(code)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Hibás kód!',
+                text: 'Pontosan 6 számjegyet adj meg!',
+            })
+            return
+        }
+
+        try {
+            const res = await fetch('/account/verify-code', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': document
+                        .querySelector('meta[name="csrf-token"]')
+                        .getAttribute('content'),
+                },
+                body: JSON.stringify({ code }),
+            })
+
+            const data = await res.json()
+
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Kód elfogadva!',
+                    text: 'Elküldtük a megerősítő linket az új email címre.',
+                })
+
+                const modal2 = bootstrap.Modal.getInstance(
+                    document.getElementById('modal-code-verify')
+                )
+                modal2.hide()
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Hiba',
+                    text: data.message || 'Hibás kód.',
+                })
             }
+        } catch (err) {
+            console.error(err)
+            Swal.fire({
+                icon: 'error',
+                title: 'Hálózati hiba',
+                text: 'Kérlek, próbáld újra később.',
+            })
         }
     })
 })
@@ -102,7 +198,9 @@ function savePasswordChange() {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'X-CSRF-Token': document
+                .querySelector('meta[name="csrf-token"]')
+                .getAttribute('content'),
         },
         body: JSON.stringify({ currentPassword, newPassword, confirmPassword }),
     })

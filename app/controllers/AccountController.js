@@ -1,15 +1,18 @@
-const { User } = require('../../app/models')
-const { sendEmailVerification, passwordChangedNotification } = require('../../utils/mailer')
+const { User, EmailChangeCode } = require('../../app/models')
+const { Op } = require('sequelize')
+const {
+    sendEmailVerification,
+    passwordChangedNotification,
+    send6DigitCode,
+} = require('../../utils/mailer')
 const jwt = require('jsonwebtoken')
 const { validationResult } = require('express-validator')
 
-// Email cím megváltoztatásához szükséges SMTP email küldése
-const changeEmail = async (req, res) => {
+// 🔐 Email cím megváltoztatásához szükséges ellenőrzés és 6 jegyű kód küldése (régi emailre)
+const checkDetails = async (req, res) => {
     try {
-        // Bejelentkezett felhasználó lekérése
         const user = await User.findByPk(req.session.userId)
 
-        // Ha nincs ilyen felhasználó, akkor hibát dobunk
         if (!user) {
             return res.status(404).json({
                 success: false,
@@ -17,38 +20,53 @@ const changeEmail = async (req, res) => {
             })
         }
 
-        // Új email cím beállítása
         const newEmail = req.body.email
         const password = req.body.password
 
-        // Ha a jelszó nem egyezik, akkor hibát dobunk
-        if (!user.validPassword(password)) {
+        if (!newEmail || !password) {
             return res.status(400).json({
                 success: false,
-                message: 'A jelszó nem egyezik!',
+                message: 'Az új email cím és jelszó megadása kötelező!',
             })
         }
 
-        // Nézzük meg, hogy van-e már ilyen email cím
+        if (!user.validPassword(password)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Helytelen jelszó!',
+            })
+        }
+
         const existingUser = await User.findOne({ where: { email: newEmail } })
 
-        // Ha van már ilyen email cím, akkor hibát dobunk
         if (existingUser) {
             return res.status(400).json({
                 success: false,
                 message: 'Ez az email cím már foglalt!',
             })
         }
-        await sendEmailVerification(user, newEmail, user.email)
 
-        return res.json({
-            success: true,
-            message: 'Az email címed megváltoztatásához szükséges lépéseket elküldtük a megadott email címre!',
+        const digits = Math.floor(100000 + Math.random() * 900000).toString()
+        const expiresAt = new Date(Date.now() + 10 * 60 * 1000) // 10 perc
+
+        await EmailChangeCode.create({
+            user_id: user.id,
+            code: digits,
+            used: false,
+            expiresAt,
+            new_email: newEmail,
         })
 
-        // SMTP email ki küldése a régi és az új email címre
+        await send6DigitCode(user, user.email, digits) // küldés régi emailre
+
+        req.session.newEmail = newEmail
+
+        return res.status(200).json({
+            success: true,
+            message: 'A kód elküldve a jelenlegi email címedre.',
+        })
     } catch (err) {
-        console.error('Change email error:', err)
+        console.error('❌ Change email error:', err)
         return res.status(500).json({
             success: false,
             message: 'Szerverhiba történt. Próbáld újra később!',
@@ -56,8 +74,66 @@ const changeEmail = async (req, res) => {
     }
 }
 
-// Email cím megváltoztatásának megerősítése
-const confirmEmailChange = async (req, res) => {
+// ✅ 6 jegyű kód ellenőrzése → új emailre megerősítő link küldése
+const verifyCode = async (req, res) => {
+    const code = req.body.code
+
+    if (!code) {
+        return res.status(400).json({
+            success: false,
+            message: 'Hiányzik a kód!',
+        })
+    }
+
+    try {
+        const data = await EmailChangeCode.findOne({
+            where: {
+                code,
+                used: false,
+                expiresAt: { [Op.gt]: new Date() },
+            },
+        })
+
+        if (!data) {
+            return res.status(400).json({
+                success: false,
+                message: 'Hibás vagy lejárt kód!',
+            })
+        }
+
+        const user = await User.findByPk(data.user_id)
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'Felhasználó nem található!',
+            })
+        }
+
+        data.used = true
+        await data.save()
+
+        const newEmail = req.session.newEmail
+
+        await sendEmailVerification(user, newEmail, user.email) // új emailre megerősítő link
+
+        return res.status(200).json({
+            success: true,
+            message: 'Kiment az új email címre a megerősítő link!',
+        })
+
+        delete req.session.newEmail
+    } catch (err) {
+        console.error('❌ Verify code error:', err)
+        return res.status(500).json({
+            success: false,
+            message: 'Szerverhiba történt. Próbáld újra később!',
+        })
+    }
+}
+
+// 📩 Token alapú megerősítés → tényleges email frissítés
+const changeEmail = async (req, res) => {
     const token = req.params.token
 
     if (!token) {
@@ -69,7 +145,6 @@ const confirmEmailChange = async (req, res) => {
 
     try {
         const decoded = jwt.verify(token, process.env.EMAIL_SECRET)
-
         const user = await User.findByPk(decoded.userId)
 
         if (!user) {
@@ -79,7 +154,6 @@ const confirmEmailChange = async (req, res) => {
             })
         }
 
-        // Email frissítés csak akkor, ha még nem egyezik
         if (user.email === decoded.newEmail) {
             return res.status(400).json({
                 success: false,
@@ -110,7 +184,7 @@ const confirmEmailChange = async (req, res) => {
     }
 }
 
-// Jelszó megváltoztatása
+// 🔒 Jelszó módosítás
 const changePassword = async (req, res) => {
     try {
         const errors = validationResult(req)
@@ -131,9 +205,7 @@ const changePassword = async (req, res) => {
             })
         }
 
-        const currentPassword = req.body.currentPassword
-        const newPassword = req.body.newPassword
-        const confirmPassword = req.body.confirmPassword
+        const { currentPassword, newPassword, confirmPassword } = req.body
 
         if (newPassword !== confirmPassword) {
             return res.status(400).json({
@@ -142,10 +214,16 @@ const changePassword = async (req, res) => {
             })
         }
 
+        if (!user.validPassword(currentPassword)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Helytelen jelenlegi jelszó!',
+            })
+        }
+
         user.password = user.generateHash(newPassword)
         await user.save()
 
-        // Jelszó megváltozásáról email küldése
         await passwordChangedNotification(user)
 
         return res.status(200).json({
@@ -162,7 +240,8 @@ const changePassword = async (req, res) => {
 }
 
 module.exports = {
+    checkDetails,
     changeEmail,
-    confirmEmailChange,
     changePassword,
+    verifyCode,
 }

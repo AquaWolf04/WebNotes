@@ -2,35 +2,62 @@ const express = require('express')
 const csrf = require('csurf')
 const authMiddleware = require('../middlewares/authMiddleware')
 
-// ✅ Kontrollerek importálása
-const RegisterController = require('../app/controllers/RegisterController.js')
-const AppController = require('../app/controllers/AppController.js')
-const LoginController = require('../app/controllers/LoginController.js')
-const NotesController = require('../app/controllers/NotesController.js')
-const AccountController = require('../app/controllers/AccountController.js')
-const { route } = require('express-named-router')
+// Kontrollerek
+const RegisterController = require('../app/controllers/RegisterController')
+const AppController = require('../app/controllers/AppController')
+const LoginController = require('../app/controllers/LoginController')
+const NotesController = require('../app/controllers/NotesController')
+const AccountController = require('../app/controllers/AccountController')
 
-// Validatorok importálása
-const { registerValidator } = require('../validators/registerValidator.js')
-const { changePasswordValidator } = require('../validators/changePasswordValidator.js')
+// Validatorok
+const { registerValidator } = require('../validators/registerValidator')
+const {
+    changePasswordValidator,
+} = require('../validators/changePasswordValidator')
 
-// ✅ CSRF védelem
+// CSRF védelem
 const csrfProtection = csrf({ cookie: true })
 
-// ✅ Router példány létrehozása
+// Router létrehozása
 const router = express.Router()
 
-// ✅ Oldal renderelése
+// ----------- Oldal renderelések -----------
 router.get('/', authMiddleware, (req, res) => {
     res.render('index', { user: req.session.userId })
 })
 
-// Profil oldal
 router.get('/account', authMiddleware, (req, res) => {
     res.render('account', { user: req.session.userId })
 })
-router.post('/account/change-email', csrfProtection, authMiddleware, AccountController.changeEmail)
-router.get('/account/confirm-email-change/:token', authMiddleware, AccountController.confirmEmailChange)
+
+router.get('/login', (req, res) => res.render('login'))
+router.get('/register', (req, res) => res.render('register'))
+
+// ----------- Autentikáció -----------
+router.post('/login', csrfProtection, LoginController.login)
+router.get('/logout', LoginController.logout)
+
+router.post(
+    '/register',
+    csrfProtection,
+    registerValidator,
+    RegisterController.register
+)
+
+// ----------- Fiók műveletek -----------
+router.post(
+    '/account/check-details',
+    csrfProtection,
+    authMiddleware,
+    AccountController.checkDetails
+)
+
+router.get(
+    '/account/change-email/:token',
+    authMiddleware,
+    AccountController.changeEmail
+)
+
 router.post(
     '/account/change-password',
     csrfProtection,
@@ -39,30 +66,23 @@ router.post(
     AccountController.changePassword
 )
 
-// ✅ Autehntikáció kezelése
-router.get('/login', (req, res) => res.render('login'))
-router.get('/register', (req, res) => res.render('register'))
+router.post(
+    '/account/verify-code',
+    csrfProtection,
+    authMiddleware,
+    AccountController.verifyCode
+)
 
-router.post('/login', csrfProtection, LoginController.login)
-router.get('/logout', LoginController.logout)
-router.post('/register', csrfProtection, registerValidator, RegisterController.register)
+// ----------- Jegyzetek -----------
+router.get('/notes/list', NotesController.list)
+router.post('/notes/save', csrfProtection, NotesController.save)
+router.get('/notes/finbyid/:id', NotesController.loadbyid)
+router.delete('/notes/delete/:id', NotesController.remove)
+router.put('/notes/update/:id', csrfProtection, NotesController.edit)
 
-// ✅ API végpontok
+// ----------- API végpontok -----------
 router.get('/api/version', AppController.getVer)
 router.get('/api/me', authMiddleware, AppController.me)
 
-// Jegyzetek kilistázása
-router.get('/notes/list', NotesController.list)
-// Jegyzet mentése
-router.post('/notes/save', csrfProtection, NotesController.save)
-// Jegyzet betöltése ID alapján
-router.get('/notes/finbyid/:id', NotesController.loadbyid)
-
-// Jegyzetek törlése
-router.delete('/notes/delete/:id', NotesController.remove)
-
-// Jegyzetek frissítése
-router.put('/notes/update/:id', csrfProtection, NotesController.edit)
-
-// ✅ Exportálás
+// ----------- Exportálás -----------
 module.exports = router

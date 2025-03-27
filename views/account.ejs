@@ -182,6 +182,31 @@
                 </div>
             </div>
         </div>
+
+        <div class="modal modal-blur fade" id="modal-code-verify" tabindex="-1" style="display: none" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Ellenőrző kód megadása</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Bezárás"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="mb-3">
+                            Kiküldtünk egy <strong>6 számjegyű megerősítő kódot</strong> a jelenlegi email címedre.<br />
+                            A folytatáshoz kérlek, írd be az alábbi mezőkbe a kapott kódot.
+                        </p>
+                        <div id="code-inputs" class="d-flex justify-content-center gap-2">
+                            <!-- JS tölti be ide az inputokat -->
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal"> <i class="ti ti-arrow-left me-1"></i> Vissza </a>
+                        <button type="button" class="btn btn-primary ms-auto" id="verifyCodeBtn"> <i class="ti ti-check me-1"></i> Ellenőrzés </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <script src="/js/tabler.min.js"></script>
         <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
         <script id="dev"></script>

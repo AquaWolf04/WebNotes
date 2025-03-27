@@ -46,7 +46,7 @@ app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
-// ✅ CSRF csak a nem-API kérésekre
+// CSRF csak a nem-API kérésekre
 app.use((req, res, next) => {
     if (req.path.startsWith('/api/')) {
         return next()
@@ -54,22 +54,21 @@ app.use((req, res, next) => {
     csrf({ cookie: true })(req, res, next)
 })
 
-// ✅ CSRF token beállítása a nézetekhez
+// CSRF token beállítása a nézetekhez
 app.use((req, res, next) => {
     res.locals.csrfToken = req.csrfToken ? req.csrfToken() : ''
     next()
 })
 
-// ✅ Session üzenetek törlése
+// Session üzenetek törlése
 app.use((req, res, next) => {
     if (req.session && req.session.message) {
-        console.log('✅ Session üzenet törlése:', req.session.message)
         delete req.session.message
     }
     next()
 })
 
-// ✅ Adatbázis kapcsolat inicializálása
+// Adatbázis kapcsolat inicializálása
 const initDB = async () => {
     try {
         await sequelize.authenticate()
@@ -81,10 +80,10 @@ const initDB = async () => {
 
 initDB()
 
-// ✅ Router beállítása
+// Router beállítása
 app.use('/', router)
 
-// ✅ Hibakezelő middleware
+// Hibakezelő middleware
 app.use((req, res, next) => {
     res.status(404).render('404', { url: req.originalUrl })
 })
