@@ -18,13 +18,17 @@ const save = async (req, res) => {
 
         const userId = req.session.userId
         if (!userId) {
-            return res.status(401).json({ status: 'error', message: 'Unauthorized' })
+            return res
+                .status(401)
+                .json({ status: 'error', message: 'Unauthorized' })
         }
 
         const user = await User.findByPk(userId)
 
         if (!user) {
-            return res.status(401).json({ status: 'error', message: 'Unauthorized' })
+            return res
+                .status(401)
+                .json({ status: 'error', message: 'Unauthorized' })
         }
 
         const encrypted = encryptJSON({
@@ -47,7 +51,9 @@ const save = async (req, res) => {
                 where: { name: tagNames },
             })
             const existingTagNames = existingTags.map((tag) => tag.name)
-            const newTags = tagNames.filter((tag) => !existingTagNames.includes(tag))
+            const newTags = tagNames.filter(
+                (tag) => !existingTagNames.includes(tag)
+            )
 
             const createdTags = await Tag.bulkCreate(
                 newTags.map((name) => ({ name })),
@@ -55,7 +61,9 @@ const save = async (req, res) => {
             )
             const allTags = [...existingTags, ...createdTags]
 
-            const noteTags = allTags.filter((tag) => tagNames.includes(tag.name))
+            const noteTags = allTags.filter((tag) =>
+                tagNames.includes(tag.name)
+            )
             await note.setTags(noteTags)
         }
 
@@ -77,13 +85,23 @@ const list = async (req, res) => {
     const userId = req.session.userId
 
     if (!userId) {
-        return res.status(401).json({ status: 'error', message: 'Unauthorized' })
+        return res
+            .status(401)
+            .json({ status: 'error', message: 'Unauthorized' })
     }
 
     try {
         const notes = await Note.findAll({
             where: { user_id: userId },
-            attributes: ['id', 'title', 'content', 'iv', 'createdAt', 'updatedAt', 'isPinned'],
+            attributes: [
+                'id',
+                'title',
+                'content',
+                'iv',
+                'createdAt',
+                'updatedAt',
+                'isPinned',
+            ],
             include: [
                 {
                     model: Tag,
@@ -135,12 +153,16 @@ const edit = async (req, res) => {
             attributes: ['id'],
         })
         if (!user) {
-            return res.status(401).json({ status: 'error', message: 'Unauthorized' })
+            return res
+                .status(401)
+                .json({ status: 'error', message: 'Unauthorized' })
         }
 
         const note = await Note.findByPk(noteId)
         if (!note || note.user_id !== user.id) {
-            return res.status(404).json({ status: 'error', message: 'Note not found' })
+            return res
+                .status(404)
+                .json({ status: 'error', message: 'Note not found' })
         }
 
         note.title = title
@@ -160,7 +182,9 @@ const edit = async (req, res) => {
                 where: { name: tagNames },
             })
             const existingTagNames = existingTags.map((tag) => tag.name)
-            const newTags = tagNames.filter((tag) => !existingTagNames.includes(tag))
+            const newTags = tagNames.filter(
+                (tag) => !existingTagNames.includes(tag)
+            )
 
             const createdTags = await Tag.bulkCreate(
                 newTags.map((name) => ({ name })),
@@ -168,7 +192,9 @@ const edit = async (req, res) => {
             )
             const allTags = [...existingTags, ...createdTags]
 
-            const noteTags = allTags.filter((tag) => tagNames.includes(tag.name))
+            const noteTags = allTags.filter((tag) =>
+                tagNames.includes(tag.name)
+            )
             await note.setTags(noteTags)
         }
 
@@ -191,7 +217,9 @@ const loadbyid = async (req, res) => {
         const { id } = req.params
 
         if (isNaN(id)) {
-            return res.status(400).json({ status: 'error', message: 'Invalid note ID' })
+            return res
+                .status(400)
+                .json({ status: 'error', message: 'Invalid note ID' })
         }
 
         const user = await User.findByPk(req.session.userId, {
@@ -199,7 +227,9 @@ const loadbyid = async (req, res) => {
         })
 
         if (!user) {
-            return res.status(401).json({ status: 'error', message: 'Unauthorized' })
+            return res
+                .status(401)
+                .json({ status: 'error', message: 'Unauthorized' })
         }
 
         const note = await Note.findByPk(id, {
@@ -213,7 +243,9 @@ const loadbyid = async (req, res) => {
         })
 
         if (!note || note.user_id !== user.id) {
-            return res.status(404).json({ status: 'error', message: 'Note not found' })
+            return res
+                .status(404)
+                .json({ status: 'error', message: 'Note not found' })
         }
 
         let decryptedContent = ''
@@ -253,7 +285,9 @@ const remove = async (req, res) => {
         const { id } = req.params
 
         if (isNaN(id)) {
-            return res.status(400).json({ status: 'error', message: 'Invalid note ID' })
+            return res
+                .status(400)
+                .json({ status: 'error', message: 'Invalid note ID' })
         }
 
         const user = await User.findByPk(req.session.userId, {
@@ -261,12 +295,16 @@ const remove = async (req, res) => {
         })
 
         if (!user) {
-            return res.status(401).json({ status: 'error', message: 'Unauthorized' })
+            return res
+                .status(401)
+                .json({ status: 'error', message: 'Unauthorized' })
         }
 
         const note = await Note.findByPk(id)
         if (!note || note.user_id !== user.id) {
-            return res.status(404).json({ status: 'error', message: 'Note not found' })
+            return res
+                .status(404)
+                .json({ status: 'error', message: 'Note not found' })
         }
 
         const noteTags = await NoteTag.findAll({
@@ -288,10 +326,59 @@ const remove = async (req, res) => {
     }
 }
 
+const shareInit = async (req, res) => {
+    try {
+        const { id } = req.params
+
+        if (isNaN(id)) {
+            return res
+                .status(400)
+                .json({ status: 'error', message: 'Invalid note ID' })
+        }
+
+        const user = await User.findByPk(req.session.userId, {
+            attributes: ['id'],
+        })
+
+        if (!user) {
+            return res
+                .status(401)
+                .json({ status: 'error', message: 'Unauthorized' })
+        }
+
+        const note = await Note.findByPk(id)
+        if (!note || note.user_id !== user.id) {
+            return res
+                .status(404)
+                .json({ status: 'error', message: 'Note not found' })
+        }
+
+        res.status(200).json({
+            status: 'success',
+            note: {
+                id: note.id,
+                title: note.title,
+                content: note.content,
+                tags: note.Tags.map((tag) => tag.name),
+                createdAt: note.createdAt,
+                updatedAt: note.updatedAt,
+                isPinned: note.isPinned,
+            },
+        })
+    } catch (error) {
+        console.error('Share init error:', error)
+        res.status(500).json({
+            status: 'error',
+            message: 'Failed to initialize share',
+        })
+    }
+}
+
 module.exports = {
     save,
     list,
     edit,
     loadbyid,
     remove,
+    shareInit,
 }

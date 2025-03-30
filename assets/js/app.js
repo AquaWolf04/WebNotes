@@ -5,10 +5,13 @@ $(document).ready(() => {
         type: 'GET',
         success: (response) => {
             if (response.user) {
-                $('#user-avatar').text(response.user.username.charAt(0).toUpperCase())
+                $('#user-avatar').text(
+                    response.user.username.charAt(0).toUpperCase()
+                )
 
                 if (response.user.role !== 'admin') {
-                    document.getElementById('dev').src = 'https://cdn.jsdelivr.net/npm/disable-devtool'
+                    document.getElementById('dev').src =
+                        'https://cdn.jsdelivr.net/npm/disable-devtool'
                 }
 
                 $('#username').text(response.user.username)
@@ -17,10 +20,12 @@ $(document).ready(() => {
                 let roleIcon = ''
                 switch (response.user.role) {
                     case 'admin':
-                        roleIcon = '<i class="ti ti-shield-check text-danger"></i>'
+                        roleIcon =
+                            '<i class="ti ti-shield-check text-danger"></i>'
                         break
                     case 'moderator':
-                        roleIcon = '<i class="ti ti-user-check text-warning"></i>'
+                        roleIcon =
+                            '<i class="ti ti-user-check text-warning"></i>'
                         break
                     default:
                         roleIcon = '<i class="ti ti-user text-muted"></i>'
@@ -52,10 +57,10 @@ const Toast = Swal.mixin({
 
 // Pro funkciókhoz tartozó Toast
 function upgradeToPro() {
-    Toast.fire({
-        icon: 'error',
-        title: 'A funkció jelenleg nem elérhető!',
-    })
+    const upgradeModal = new bootstrap.Modal(
+        document.getElementById('upgradeModal')
+    )
+    upgradeModal.show()
 }
 
 // Alkalmazás verzió lekérése és megjelenítése a felhasználói felületen
@@ -83,7 +88,9 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('[href^="?theme="]').forEach((link) => {
         link.addEventListener('click', (e) => {
             e.preventDefault()
-            const theme = e.currentTarget.href.includes('dark') ? 'dark' : 'light'
+            const theme = e.currentTarget.href.includes('dark')
+                ? 'dark'
+                : 'light'
             saveTheme(theme)
         })
     })

@@ -79,10 +79,11 @@ router.post('/notes/save', csrfProtection, NotesController.save)
 router.get('/notes/finbyid/:id', NotesController.loadbyid)
 router.delete('/notes/delete/:id', NotesController.remove)
 router.put('/notes/update/:id', csrfProtection, NotesController.edit)
+router.get('/notes/share/:id/init', NotesController.shareInit)
 
 // ----------- API végpontok -----------
 router.get('/api/version', AppController.getVer)
-router.get('/api/me', authMiddleware, AppController.me)
+router.get('/api/me', authMiddleware, AccountController.me)
 
 // ----------- Exportálás -----------
 module.exports = router

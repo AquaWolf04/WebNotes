@@ -8,7 +8,35 @@ const {
 const jwt = require('jsonwebtoken')
 const { validationResult } = require('express-validator')
 
-// 🔐 Email cím megváltoztatásához szükséges ellenőrzés és 6 jegyű kód küldése (régi emailre)
+// Visszaadja a bejelentkezett felhasználó adatait (ASZINKRON)
+const me = async (req, res) => {
+    try {
+        if (!req.session.userId) {
+            return res
+                .status(401)
+                .json({ errors: [{ msg: 'Nincs bejelentkezve' }] })
+        }
+
+        const user = await User.findByPk(req.session.userId, {
+            attributes: ['id', 'username', 'email', 'role', 'isPro'],
+        })
+
+        if (!user) {
+            return res
+                .status(404)
+                .json({ errors: [{ msg: 'Felhasználó nem található' }] })
+        }
+
+        return res.json({ user })
+    } catch (err) {
+        console.error('Me error:', err)
+        return res.status(500).json({
+            errors: [{ msg: 'Szerverhiba történt. Próbáld újra később!' }],
+        })
+    }
+}
+
+// Email cím megváltoztatásához szükséges ellenőrzés és 6 jegyű kód küldése (régi emailre)
 const checkDetails = async (req, res) => {
     try {
         const user = await User.findByPk(req.session.userId)
@@ -74,7 +102,7 @@ const checkDetails = async (req, res) => {
     }
 }
 
-// ✅ 6 jegyű kód ellenőrzése → új emailre megerősítő link küldése
+// 6 jegyű kód ellenőrzése → új emailre megerősítő link küldése
 const verifyCode = async (req, res) => {
     const code = req.body.code
 
@@ -132,7 +160,7 @@ const verifyCode = async (req, res) => {
     }
 }
 
-// 📩 Token alapú megerősítés → tényleges email frissítés
+// Token alapú megerősítés → tényleges email frissítés
 const changeEmail = async (req, res) => {
     const token = req.params.token
 
@@ -184,7 +212,7 @@ const changeEmail = async (req, res) => {
     }
 }
 
-// 🔒 Jelszó módosítás
+// Jelszó módosítás
 const changePassword = async (req, res) => {
     try {
         const errors = validationResult(req)
@@ -244,4 +272,5 @@ module.exports = {
     changeEmail,
     changePassword,
     verifyCode,
+    me,
 }

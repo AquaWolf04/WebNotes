@@ -22,7 +22,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function createTagElement(tag) {
         const tagElement = document.createElement('div')
-        tagElement.classList.add('badge', 'bg-primary', 'me-1', 'p-2', 'text-white')
+        tagElement.classList.add(
+            'badge',
+            'bg-primary',
+            'me-1',
+            'p-2',
+            'text-white'
+        )
         tagElement.textContent = tag
 
         const removeBtn = document.createElement('span')
@@ -65,7 +71,11 @@ document.addEventListener('DOMContentLoaded', () => {
     })
 
     tagInput.addEventListener('keydown', (event) => {
-        if (event.key === 'Backspace' && tagInput.value === '' && tags.length > 0) {
+        if (
+            event.key === 'Backspace' &&
+            tagInput.value === '' &&
+            tags.length > 0
+        ) {
             const lastTag = tags.pop()
             updateHiddenInput()
             ;[...tagContainer.getElementsByClassName('badge')].pop().remove()
@@ -73,9 +83,11 @@ document.addEventListener('DOMContentLoaded', () => {
     })
 
     // Amikor megnyílik a modal
-    document.getElementById('noteModal').addEventListener('show.bs.modal', (event) => {
-        updateTagUI() // Mindig frissíti a címkéket a meglévő hidden input alapján
-    })
+    document
+        .getElementById('noteModal')
+        .addEventListener('show.bs.modal', (event) => {
+            updateTagUI() // Mindig frissíti a címkéket a meglévő hidden input alapján
+        })
 })
 document.addEventListener('DOMContentLoaded', function () {
     let options = {
@@ -190,7 +202,9 @@ function renderNotes(notesToRender) {
                 <div onclick="readNotes(${note.id})" class="col-md-4 mb-4">
                     <div class="${cardClass}">
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <h3 class="card-title text-truncate mb-0" title="${escapeHtml(note.title)}">
+                            <h3 class="card-title text-truncate mb-0" title="${escapeHtml(
+                                note.title
+                            )}">
                                 ${escapeHtml(note.title)}
                             </h3>
                             <div class="card-actions">
@@ -199,13 +213,19 @@ function renderNotes(notesToRender) {
                                         <i class="ti ti-dots-vertical"></i>
                                     </a>
                                     <div class="dropdown-menu dropdown-menu-end">
-                                        <a class="dropdown-item" href="#" onclick="openNoteModal(${note.id})">
+                                        <a class="dropdown-item" href="#" onclick="openNoteModal(${
+                                            note.id
+                                        })">
                                             <i class="ti ti-edit icon dropdown-item-icon"></i> Szerkesztés
                                         </a>
-                                        <a class="dropdown-item" href="#" onclick="shareModal(${note.id})">
+                                        <a class="dropdown-item" href="#" onclick="shareModal(${
+                                            note.id
+                                        })">
                                             <i class="ti ti-share icon dropdown-item-icon"></i> Megosztás
                                         </a>
-                                        <a class="dropdown-item text-danger" href="#" onclick="deleteNote(${note.id})">
+                                        <a class="dropdown-item text-danger" href="#" onclick="deleteNote(${
+                                            note.id
+                                        })">
                                             <i class="ti ti-trash icon dropdown-item-icon"></i> Törlés
                                         </a>
                                     </div>
@@ -221,7 +241,12 @@ function renderNotes(notesToRender) {
                                     note.tags && note.tags.length > 0
                                         ? `<div class="tags-container">
                                             ${note.tags
-                                                .map((tag) => `<span class="badge tag-badge">${escapeHtml(tag)}</span>`)
+                                                .map(
+                                                    (tag) =>
+                                                        `<span class="badge tag-badge">${escapeHtml(
+                                                            tag
+                                                        )}</span>`
+                                                )
                                                 .join('')}
                                         </div>`
                                         : ''
@@ -232,7 +257,9 @@ function renderNotes(notesToRender) {
                                     <i class="ti ti-calendar-event me-1"></i> 
                                     ${
                                         note.createdAt
-                                            ? new Date(note.createdAt).toLocaleDateString('hu-HU')
+                                            ? new Date(
+                                                  note.createdAt
+                                              ).toLocaleDateString('hu-HU')
                                             : 'Nincs dátum'
                                     }
                                 </div>
@@ -255,9 +282,14 @@ function readNotes(id) {
                 console.log('Jegyzet:', note.title)
                 $('#nTitle').text(note.title)
                 $('#nContent').html(note.content)
-                $('#noteUpdated').text('Utoljára frissítve: ' + new Date(note.updatedAt).toLocaleString())
+                $('#noteUpdated').text(
+                    'Utoljára frissítve: ' +
+                        new Date(note.updatedAt).toLocaleString()
+                )
 
-                const modal = new bootstrap.Modal(document.getElementById('noteViewModal'))
+                const modal = new bootstrap.Modal(
+                    document.getElementById('noteViewModal')
+                )
                 modal.show()
             } else {
                 Toast.fire({
@@ -281,7 +313,9 @@ function truncateHtmlContent(html, maxLength) {
     const tempDiv = document.createElement('div')
     tempDiv.innerHTML = html
     const text = tempDiv.textContent || tempDiv.innerText || ''
-    return text.length > maxLength ? text.substring(0, maxLength).trim() + '...' : text
+    return text.length > maxLength
+        ? text.substring(0, maxLength).trim() + '...'
+        : text
 }
 
 function initSearchHandler() {
@@ -296,7 +330,9 @@ function initSearchHandler() {
                 (note) =>
                     note.title.toLowerCase().includes(searchTerm) ||
                     note.content.toLowerCase().includes(searchTerm) ||
-                    note.tags.some((tag) => tag.toLowerCase().includes(searchTerm))
+                    note.tags.some((tag) =>
+                        tag.toLowerCase().includes(searchTerm)
+                    )
             )
             renderNotes(filteredNotes)
         }, 300)
@@ -351,7 +387,8 @@ function openNoteModal(noteId = null) {
                     if (hugerte.get('noteContent')) {
                         hugerte.get('noteContent').setContent(note.content)
                     } else {
-                        document.getElementById('noteContent').value = note.content
+                        document.getElementById('noteContent').value =
+                            note.content
                     }
 
                     updateTagUI(note.tags)
@@ -366,7 +403,8 @@ function openNoteModal(noteId = null) {
             })
     } else {
         console.log('➕ Új jegyzet mód')
-        title.innerHTML = '<i class="ti ti-plus me-2"></i> Új jegyzet létrehozása'
+        title.innerHTML =
+            '<i class="ti ti-plus me-2"></i> Új jegyzet létrehozása'
         noteForm.reset()
 
         // Új eseménykezelő a mentéshez
@@ -395,7 +433,13 @@ function updateTagUI(tags) {
     // Új címkék hozzáadása
     tags.forEach((tag, index) => {
         const tagElement = document.createElement('span')
-        tagElement.classList.add('badge', 'bg-primary', 'me-1', 'p-2', 'text-white')
+        tagElement.classList.add(
+            'badge',
+            'bg-primary',
+            'me-1',
+            'p-2',
+            'text-white'
+        )
         tagElement.textContent = tag
 
         const removeBtn = document.createElement('span')
@@ -420,20 +464,24 @@ function resetTags() {
 }
 
 // Modal megnyitás eseményfigyelője
-document.getElementById('noteModal').addEventListener('show.bs.modal', function (event) {
-    const noteId = document.getElementById('noteId').value
-    console.log('🆔 Jegyzet ID:', noteId)
+document
+    .getElementById('noteModal')
+    .addEventListener('show.bs.modal', function (event) {
+        const noteId = document.getElementById('noteId').value
+        console.log('🆔 Jegyzet ID:', noteId)
 
-    if (noteId) {
-        // Ha van noteId, akkor szerkesztünk, tehát betöltjük a meglévő tageket
-        const hiddenTags = document.getElementById('hiddenTags').value
-        const tags = hiddenTags ? hiddenTags.split(',').map((tag) => tag.trim()) : []
-        updateTagUI(tags)
-    } else {
-        // Ha nincs noteId, akkor új jegyzet jön létre, tehát töröljük a címkéket
-        resetTags()
-    }
-})
+        if (noteId) {
+            // Ha van noteId, akkor szerkesztünk, tehát betöltjük a meglévő tageket
+            const hiddenTags = document.getElementById('hiddenTags').value
+            const tags = hiddenTags
+                ? hiddenTags.split(',').map((tag) => tag.trim())
+                : []
+            updateTagUI(tags)
+        } else {
+            // Ha nincs noteId, akkor új jegyzet jön létre, tehát töröljük a címkéket
+            resetTags()
+        }
+    })
 
 async function saveNote(event) {
     event.preventDefault()
@@ -461,7 +509,9 @@ async function saveNote(event) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'X-CSRF-Token': document
+                    .querySelector('meta[name="csrf-token"]')
+                    .getAttribute('content'),
             },
             body: JSON.stringify(noteData),
         })
@@ -526,7 +576,9 @@ async function editNote(event, noteId) {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'X-CSRF-Token': document
+                    .querySelector('meta[name="csrf-token"]')
+                    .getAttribute('content'),
             },
             body: JSON.stringify(noteData),
         })
@@ -588,7 +640,9 @@ function deleteNote(id) {
                 const response = await fetch(`/notes/delete/${id}`, {
                     method: 'DELETE',
                     headers: {
-                        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'X-CSRF-Token': document
+                            .querySelector('meta[name="csrf-token"]')
+                            .getAttribute('content'),
                     },
                 })
 

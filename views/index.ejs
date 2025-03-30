@@ -191,12 +191,138 @@
             </div>
         </div>
 
+        <!-- Megosztás Modal -->
+        <div class="modal modal-blur fade" id="shareModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <form class="modal-content" id="shareForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Megosztás beállításai</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Bezárás"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Megosztási link -->
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Megosztási link
+                                <span class="form-text d-block text-muted">
+                                    Alapértelmezés szerint egy biztonságos, automatikusan generált linket kapsz.
+                                    <br />
+                                    Ha saját, könnyen megjegyezhető URL-t szeretnél, válts <strong>PRO</strong> csomagra és add meg egyedileg.
+                                </span>
+                            </label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="shareLink" readonly value="https://webnotes.hu/shared/xyz123" />
+                                <button type="button" class="btn btn-outline-secondary" id="copyLinkBtn">Másolás</button>
+                            </div>
+                        </div>
+
+                        <!-- Lejárat típusa -->
+                        <div class="mb-3">
+                            <label class="form-label">Lejárat módja</label>
+                            <select class="form-select" id="expiryType">
+                                <option value="none">Nincs</option>
+                                <option value="time" disabled>Idő alapján</option>
+                                <option value="views" disabled>Megtekintésszám alapján</option>
+                                <option value="password" disabled>Jelszóval védett</option>
+                            </select>
+                        </div>
+
+                        <!-- Idő alapján -->
+                        <div class="mb-3 d-none" id="timeOptions">
+                            <label class="form-label">Lejárat dátuma</label>
+                            <input type="datetime-local" class="form-control" id="expireAt" />
+                        </div>
+
+                        <!-- Megtekintések alapján -->
+                        <div class="mb-3 d-none" id="viewsOptions">
+                            <label class="form-label">Max. megtekintés</label>
+                            <input type="number" min="1" class="form-control" id="maxViews" placeholder="pl. 5" />
+                        </div>
+
+                        <!-- Jelszó -->
+                        <div class="mb-3 d-none" id="passwordOptions">
+                            <label class="form-label">Jelszó</label>
+                            <input type="password" class="form-control" id="sharePassword" placeholder="Adjon meg egy jelszót" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-link" data-bs-dismiss="modal">Mégsem</button>
+                        <button type="submit" class="btn btn-primary">Mentés</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="modal modal-blur fade" id="upgradeModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                <div class="modal-content border-0 shadow-lg">
+                    <div class="modal-body p-4 p-md-5 text-center">
+                        <div class="mb-4">
+                            <i class="ti ti-star text-yellow" style="font-size: 3rem"></i>
+                            <h2 class="mt-3 fw-bold">Lépj szintet a <span class="text-yellow">PRO</span> csomaggal!</h2>
+                            <p class="text-muted fs-5"> Oldd fel az extra funkciókat: egyedi megosztási linkek, nagyobb biztonság, rugalmas lejáratok és még sok más. </p>
+                        </div>
+
+                        <div class="row text-start justify-content-center">
+                            <div class="col-md-5 mb-3">
+                                <div class="d-flex align-items-start">
+                                    <i class="ti ti-link fs-3 text-primary me-3"></i>
+                                    <div>
+                                        <h5 class="mb-1">Egyedi megosztási linkek</h5>
+                                        <p class="text-muted mb-0">Állíts be saját URL-t a jegyzeteidhez – profi megjelenés, könnyű megosztás.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-5 mb-3">
+                                <div class="d-flex align-items-start">
+                                    <i class="ti ti-clock fs-3 text-success me-3"></i>
+                                    <div>
+                                        <h5 class="mb-1">Rugalmas lejáratok</h5>
+                                        <p class="text-muted mb-0">Állíts be lejáratot időre, megtekintésekre, vagy jelszóval – te döntesz.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-5 mb-3">
+                                <div class="d-flex align-items-start">
+                                    <i class="ti ti-shield-lock fs-3 text-danger me-3"></i>
+                                    <div>
+                                        <h5 class="mb-1">Jelszóval védett megosztások</h5>
+                                        <p class="text-muted mb-0">Extra biztonság: csak azok férhetnek hozzá, akiknek engeded.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-5 mb-3">
+                                <div class="d-flex align-items-start">
+                                    <i class="ti ti-download fs-3 text-indigo me-3"></i>
+                                    <div>
+                                        <h5 class="mb-1">Későbbi letöltés</h5>
+                                        <p class="text-muted mb-0">Jegyzetek exportálása egy kattintással (JSON) – minden nálad marad.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-center my-5">
+                            <h3 class="fw-bold mb-1">PRO csomag</h3>
+                            <div class="display-6 fw-bold">899 Ft / hó</div>
+                            <p class="text-muted mb-0">Bármikor lemondható, rejtett költségek nélkül.</p>
+                        </div>
+                        <div class="mt-4">
+                            <a href="/upgrade" class="btn btn-warning btn-lg"> Frissítek PRO-ra </a>
+                            <button type="button" class="btn btn-link text-muted ms-3" data-bs-dismiss="modal"> Talán később </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <script src="/js/tabler.min.js"></script>
         <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
         <script id="dev"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.10.1/dist/sweetalert2.all.min.js"></script>
         <script src="/js/editor/hugerte.min.js"></script>
         <script src="/js/app.js"></script>
+        <script src="/js/share.js"></script>
         <script src="/js/webnotes.js"></script>
     </body>
 </html>
