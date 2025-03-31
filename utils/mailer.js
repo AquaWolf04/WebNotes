@@ -1,5 +1,6 @@
 const transporter = require('../config/mailer')
 const jwt = require('jsonwebtoken')
+const env = require('dotenv').config()
 
 const sendEmailVerification = async (user, newEmail, oldEmail) => {
     const token = jwt.sign(
@@ -8,7 +9,12 @@ const sendEmailVerification = async (user, newEmail, oldEmail) => {
         { expiresIn: '10m' }
     )
 
-    const verificationUrl = `http://localhost:3000/account/change-email/${token}`
+    const env = process.env
+
+    const domain =
+        env.NODE_ENV === 'production' ? env.DOMAIN_PROD : env.DOMAIN_DEV
+
+    const verificationUrl = `${domain}/account/change-email/${token}`
 
     // 👉 Email az új címre – megerősítés
     await transporter.sendMail({
@@ -114,8 +120,43 @@ const passwordChangedNotification = async (user) => {
     })
 }
 
+const resetPasswordMail = async (user) => {
+    const token = jwt.sign({ userId: user.id }, process.env.EMAIL_SECRET, {
+        expiresIn: '1h',
+    })
+
+    const env = process.env
+    const domain =
+        env.NODE_ENV === 'production' ? env.DOMAIN_PROD : env.DOMAIN_DEV
+
+    const resetUrl = `${domain}/reset-password/${token}`
+
+    await transporter.sendMail({
+        from: '"WebNotes" <no-reply@webnotes.hu>',
+        to: user.email,
+        subject: '🔑 WebNotes – Jelszó visszaállítása',
+        html: `
+      <div style="font-family: Arial, sans-serif; background-color: #f4f4f7; padding: 30px;">
+        <div style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+          <h2 style="color: #206bc4;">🔑 Jelszó visszaállítása</h2>
+          <p>Szia <strong>${user.username}</strong>!</p>
+          <p>Úgy tűnik, hogy elfelejtetted a <strong>WebNotes</strong> fiókod jelszavát.</p>
+          <p>Kattints az alábbi gombra, hogy új jelszót állíthass be:</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${resetUrl}" style="display: inline-block; background-color: #206bc4; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold;">🔄 Jelszó visszaállítása</a>
+          </div>
+          <p style="font-size: 14px; color: #555;">Ha nem te kérted a jelszó visszaállítást, nyugodtan hagyd figyelmen kívül ezt az üzenetet.</p>
+          <hr style="margin-top: 30px; border: none; border-top: 1px solid #eee;">
+          <p style="font-size: 12px; color: #888;">Ez egy automatikus üzenet – kérlek ne válaszolj rá.</p>
+        </div>
+      </div>
+    `,
+    })
+}
+
 module.exports = {
     sendEmailVerification,
     passwordChangedNotification,
     send6DigitCode,
+    resetPasswordMail,
 }

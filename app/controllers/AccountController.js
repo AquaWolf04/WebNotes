@@ -4,6 +4,7 @@ const {
     sendEmailVerification,
     passwordChangedNotification,
     send6DigitCode,
+    resetPassword,
 } = require('../../utils/mailer')
 const jwt = require('jsonwebtoken')
 const { validationResult } = require('express-validator')
@@ -172,9 +173,6 @@ const changeEmail = async (req, res) => {
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.EMAIL_SECRET)
-        const user = await User.findByPk(decoded.userId)
-
         if (!user) {
             return res.status(404).json({
                 success: false,
