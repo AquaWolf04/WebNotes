@@ -7,9 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault()
 
         const email = document.getElementById('newEmail').value.trim()
-        const password = document.getElementById(
-            'currentPasswordForChangeEmail'
-        ).value
+        const password = document.getElementById('currentPasswordForChangeEmail').value
 
         if (!email || !password) {
             Swal.fire({
@@ -28,9 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-Token': document
-                        .querySelector('meta[name="csrf-token"]')
-                        .getAttribute('content'),
+                    'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                 },
                 body: JSON.stringify({ email, password }),
             })
@@ -39,27 +35,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (data.success) {
                 // Modal 1 bezárása
-                const modal1 = bootstrap.Modal.getInstance(
-                    document.getElementById('modal-change-email')
-                )
+                const modal1 = bootstrap.Modal.getInstance(document.getElementById('modal-change-email'))
                 modal1.hide()
 
-                // Kód mezők betöltése
+                // 6 számjegyű mezők generálása Tabler stílusban
                 const codeInputs = document.getElementById('code-inputs')
                 codeInputs.innerHTML = [...Array(6)]
                     .map(
-                        () =>
-                            `<input type="text" maxlength="1" class="code-input" style="
-                        width: 40px;
-                        height: 50px;
-                        text-align: center;
-                        font-size: 24px;
-                        border: 2px solid #ccc;
-                        border-radius: 6px;
-                        outline: none;
-                        autocomplete="one-time-code"
-
-                    ">`
+                        () => `
+                  <input
+                    type="text"
+                    maxlength="1"
+                    class="form-control form-control-lg text-center px-3 py-3 code-input"
+                    inputmode="numeric"
+                    pattern="[0-9]*"
+                    autocomplete="one-time-code"
+                  />
+                `
                     )
                     .join('')
 
@@ -68,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const modal2 = new bootstrap.Modal(modal2El)
                 modal2.show()
 
-                // Input fókusz és viselkedés
+                // Input viselkedés
                 const inputs = modal2El.querySelectorAll('.code-input')
                 inputs.forEach((input, i) => {
                     input.addEventListener('input', () => {
@@ -78,17 +70,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     })
 
                     input.addEventListener('keydown', (e) => {
-                        if (
-                            e.key === 'Backspace' &&
-                            input.value === '' &&
-                            i > 0
-                        ) {
+                        if (e.key === 'Backspace' && input.value === '' && i > 0) {
                             inputs[i - 1].focus()
                         }
                     })
                 })
 
-                // Űrlap törlése
+                // Első mezőre fókusz
+                setTimeout(() => inputs[0].focus(), 300)
+
+                // Előző űrlap törlése
                 form.reset()
             } else {
                 Swal.fire({
@@ -126,14 +117,17 @@ document.addEventListener('DOMContentLoaded', () => {
             return
         }
 
+        const btn = document.getElementById('verifyCodeBtn')
+        btn.disabled = true
+        const originalHtml = btn.innerHTML
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Ellenőrzés...`
+
         try {
             const res = await fetch('/account/verify-code', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-Token': document
-                        .querySelector('meta[name="csrf-token"]')
-                        .getAttribute('content'),
+                    'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                 },
                 body: JSON.stringify({ code }),
             })
@@ -147,9 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     text: 'Elküldtük a megerősítő linket az új email címre.',
                 })
 
-                const modal2 = bootstrap.Modal.getInstance(
-                    document.getElementById('modal-code-verify')
-                )
+                const modal2 = bootstrap.Modal.getInstance(document.getElementById('modal-code-verify'))
                 modal2.hide()
             } else {
                 Swal.fire({
@@ -165,6 +157,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 title: 'Hálózati hiba',
                 text: 'Kérlek, próbáld újra később.',
             })
+        } finally {
+            btn.disabled = false
+            btn.innerHTML = originalHtml
         }
     })
 })
@@ -198,9 +193,7 @@ function savePasswordChange() {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-Token': document
-                .querySelector('meta[name="csrf-token"]')
-                .getAttribute('content'),
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
         },
         body: JSON.stringify({ currentPassword, newPassword, confirmPassword }),
     })

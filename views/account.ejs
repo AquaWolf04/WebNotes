@@ -4,7 +4,15 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="csrf-token" content="<%= csrfToken %>" />
-        <title>WebNotes - Fiók</title>
+        <title>WebNotes -//- Fiók</title>
+        <!-- OG -->
+        <meta property="og:title" content="Fiókom – WebNotes" />
+        <meta property="og:description" content="Személyes adataid és beállításaid kezelése a WebNotes felületén. Jelszavak, email címek és több." />
+        <meta property="og:image" content="https://webnotes.hu/img/banner/WebNotes.png" />
+        <meta property="og:type" content="website" />
+        <!---->
+        <link rel="manifest" href="/json/manifest.json" />
+        <link rel="shortcut icon" href="/img/logo/favicon.png" type="image/x-icon" />
         <link rel="stylesheet" href="/css/tabler.min.css" />
         <link href="/css/tabler-icons-outline.min.css" rel="stylesheet" />
         <link href="/css/custom.css" rel="stylesheet" />
@@ -24,9 +32,6 @@
         <div class="page">
             <header class="navbar navbar-expand-md navbar-light d-print-none">
                 <div class="container-xl">
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
                     <h1 class="navbar-brand navbar-brand-autodark">
                         <a href="/">
                             <img src="/img/logo/WebNotes.svg" width="110" height="32" alt="WebNotes" class="navbar-brand-image" />
@@ -186,23 +191,23 @@
         <div class="modal modal-blur fade" id="modal-code-verify" tabindex="-1" style="display: none" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Ellenőrző kód megadása</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Bezárás"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p class="mb-3">
-                            Kiküldtünk egy <strong>6 számjegyű megerősítő kódot</strong> a jelenlegi email címedre.<br />
-                            A folytatáshoz kérlek, írd be az alábbi mezőkbe a kapott kódot.
-                        </p>
-                        <div id="code-inputs" class="d-flex justify-content-center gap-2">
-                            <!-- JS tölti be ide az inputokat -->
+                    <form id="code-form" class="card card-md" autocomplete="off">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Ellenőrző kód megadása</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Bezárás"></button>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal"> <i class="ti ti-arrow-left me-1"></i> Vissza </a>
-                        <button type="button" class="btn btn-primary ms-auto" id="verifyCodeBtn"> <i class="ti ti-check me-1"></i> Ellenőrzés </button>
-                    </div>
+                        <div class="modal-body">
+                            <p class="mb-3">
+                                Kiküldtünk egy <strong>6 számjegyű megerősítő kódot</strong> a jelenlegi email címedre.<br />
+                                A folytatáshoz kérlek, írd be az alábbi mezőkbe a kapott kódot.
+                            </p>
+                            <div id="code-inputs" class="d-flex justify-content-between gap-2 mb-4"></div>
+                        </div>
+                        <div class="modal-footer">
+                            <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal"> <i class="ti ti-arrow-left me-1"></i> Vissza </a>
+                            <button type="button" class="btn btn-primary ms-auto" id="verifyCodeBtn"> <i class="ti ti-check me-1"></i> Ellenőrzés </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

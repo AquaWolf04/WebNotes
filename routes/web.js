@@ -11,9 +11,7 @@ const AccountController = require('../app/controllers/AccountController')
 
 // Validatorok
 const { registerValidator } = require('../validators/registerValidator')
-const {
-    changePasswordValidator,
-} = require('../validators/changePasswordValidator')
+const { changePasswordValidator } = require('../validators/changePasswordValidator')
 
 // CSRF védelem
 const csrfProtection = csrf({ cookie: true })
@@ -37,26 +35,16 @@ router.get('/register', (req, res) => res.render('register'))
 router.post('/login', csrfProtection, LoginController.login)
 router.get('/logout', LoginController.logout)
 
-router.post(
-    '/register',
-    csrfProtection,
-    registerValidator,
-    RegisterController.register
-)
+router.get('/forgot-password', (req, res) => {
+    res.render('forgot-password')
+})
+
+router.post('/register', csrfProtection, registerValidator, RegisterController.register)
 
 // ----------- Fiók műveletek -----------
-router.post(
-    '/account/check-details',
-    csrfProtection,
-    authMiddleware,
-    AccountController.checkDetails
-)
+router.post('/account/check-details', csrfProtection, authMiddleware, AccountController.checkDetails)
 
-router.get(
-    '/account/change-email/:token',
-    authMiddleware,
-    AccountController.changeEmail
-)
+router.get('/account/change-email/:token', authMiddleware, AccountController.changeEmail)
 
 router.post(
     '/account/change-password',
@@ -66,12 +54,7 @@ router.post(
     AccountController.changePassword
 )
 
-router.post(
-    '/account/verify-code',
-    csrfProtection,
-    authMiddleware,
-    AccountController.verifyCode
-)
+router.post('/account/verify-code', csrfProtection, authMiddleware, AccountController.verifyCode)
 
 // ----------- Jegyzetek -----------
 router.get('/notes/list', NotesController.list)

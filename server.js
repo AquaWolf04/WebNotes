@@ -26,6 +26,7 @@ app.use(
         store: sessionStore,
         resave: false,
         saveUninitialized: false,
+        rolling: true,
         cookie: {
             secure: process.env.NODE_ENV === 'production' ? true : false,
             httpOnly: true,

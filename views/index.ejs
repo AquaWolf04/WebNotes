@@ -4,8 +4,17 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="csrf-token" content="<%= csrfToken %>" />
-        <title>WebNotes - Jegyzetek</title>
+        <title>WebNotes -//- Jegyzetek</title>
+        <!-- OG -->
+        <meta property="og:title" content="WebNotes – Titkosított jegyzetek megosztása" />
+        <meta property="og:description" content="Tárold, szerkeszd és oszd meg jegyzeteidet biztonságosan, akár jelszóval vagy lejárati idővel!" />
+        <meta property="og:image" content="https://webnotes.hu/img/banner/WebNotes.png" />
+        <meta property="og:type" content="website" />
+        <!---->
+        <link rel="manifest" href="/json/manifest.json" />
+        <link rel="shortcut icon" href="/img/logo/favicon.png" type="image/x-icon" />
         <link rel="stylesheet" href="/css/tabler.min.css" />
+        <link rel="stylesheet" href="/css/pwa.css" />
         <link href="/css/tabler-icons-outline.min.css" rel="stylesheet" />
         <link href="/css/custom.css" rel="stylesheet" />
         <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.min.css" rel="stylesheet" />
@@ -14,9 +23,6 @@
         <div class="page">
             <header class="navbar navbar-expand-md navbar-light d-print-none">
                 <div class="container-xl">
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
                     <h1 class="navbar-brand navbar-brand-autodark">
                         <a href="/">
                             <img src="/img/logo/WebNotes.svg" width="110" height="32" alt="WebNotes" class="navbar-brand-image" />
@@ -66,6 +72,10 @@
                                 <button class="btn btn-primary d-inline-flex align-items-center" onclick="openNoteModal()">
                                     <i class="ti ti-plus icon me-1"></i>
                                     Új jegyzet
+                                </button>
+                                <button id="refreshBtn" onclick="refreshNotes()" style="display: none" class="btn btn-danger d-inline-flex align-items-center" disabled>
+                                    <i id="refreshIcon" class="ti ti-reload me-1"></i>
+                                    Frissítés
                                 </button>
                             </div>
                         </div>
@@ -321,6 +331,7 @@
         <script id="dev"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.10.1/dist/sweetalert2.all.min.js"></script>
         <script src="/js/editor/hugerte.min.js"></script>
+        <script src="/js/pwa.js"></script>
         <script src="/js/app.js"></script>
         <script src="/js/share.js"></script>
         <script src="/js/webnotes.js"></script>

@@ -6,6 +6,14 @@
         <meta http-equiv="X-UA-Compatible" content="ie=edge" />
         <meta name="csrf-token" content="<%= csrfToken %>" />
         <title> WebNotes -//- Bejelentkezés </title>
+        <!-- OG -->
+        <meta property="og:title" content="Bejelentkezés – WebNotes" />
+        <meta property="og:description" content="Lépj be fiókodba és kezeld biztonságosan titkosított jegyzeteidet a WebNotes felületén." />
+        <meta property="og:image" content="https://webnotes.hu/img/banner/WebNotes.png" />
+        <meta property="og:type" content="website" />
+        <!---->
+        <link rel="manifest" href="/json/manifest.json" />
+        <link rel="shortcut icon" href="/img/logo/favicon.png" type="image/x-icon" />
         <link href="/css/tabler.min.css" rel="stylesheet" />
         <link href="/css/auth.css" rel="stylesheet" />
         <link href="/css/custom.css" rel="stylesheet" />
@@ -41,7 +49,12 @@
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">Jelszó</label>
+                                <label class="form-label"
+                                    >Jelszó
+                                    <span class="form-label-description">
+                                        <a href="/forgot-password">Elfelejtetted a jelszavad?</a>
+                                    </span>
+                                </label>
                                 <input type="password" class="form-control" placeholder="Jelszó" id="password" name="password" />
                             </div>
 
