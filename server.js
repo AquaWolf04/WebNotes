@@ -97,3 +97,5 @@ app.use((err, req, res, next) => {
 app.listen(port, () => {
     console.log(`🚀 | A szerver fut a http://localhost:${port} címen!`)
 })
+
+module.exports = app
