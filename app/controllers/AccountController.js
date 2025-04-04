@@ -13,9 +13,7 @@ const { validationResult } = require('express-validator')
 const me = async (req, res) => {
     try {
         if (!req.session.userId) {
-            return res
-                .status(401)
-                .json({ errors: [{ msg: 'Nincs bejelentkezve' }] })
+            return res.status(401).json({ errors: [{ msg: 'Nincs bejelentkezve' }] })
         }
 
         const user = await User.findByPk(req.session.userId, {
@@ -23,9 +21,7 @@ const me = async (req, res) => {
         })
 
         if (!user) {
-            return res
-                .status(404)
-                .json({ errors: [{ msg: 'Felhasználó nem található' }] })
+            return res.status(404).json({ errors: [{ msg: 'Felhasználó nem található' }] })
         }
 
         return res.json({ user })
@@ -171,8 +167,10 @@ const changeEmail = async (req, res) => {
             message: 'Hiányzik a token!',
         })
     }
-
     try {
+        const decoded = jwt.verify(token, process.env.EMAIL_SECRET)
+        const user = await User.findByPk(decoded.userId)
+
         if (!user) {
             return res.status(404).json({
                 success: false,
