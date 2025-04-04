@@ -1,6 +1,6 @@
 {
     "name": "webnotes",
-    "version": "0.32",
+    "version": "0.33",
     "main": "server.js",
     "scripts": {
         "start": "node server.js",
