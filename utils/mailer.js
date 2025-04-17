@@ -3,9 +3,16 @@ const jwt = require('jsonwebtoken')
 const env = require('dotenv').config()
 
 const sendEmailVerification = async (user, newEmail, oldEmail) => {
-    const token = jwt.sign({ userId: user.id, newEmail, oldEmail }, process.env.EMAIL_SECRET, { expiresIn: '10m' })
+    const token = jwt.sign(
+        { userId: user.id, newEmail, oldEmail },
+        process.env.EMAIL_SECRET,
+        { expiresIn: '10m' }
+    )
 
-    const domain = env.parsed.NODE_ENV === 'prod' ? env.parsed.DOMAIN_PROD : env.parsed.DOMAIN_DEV
+    const domain =
+        env.parsed.NODE_ENV === 'prod'
+            ? env.parsed.DOMAIN_PROD
+            : env.parsed.DOMAIN_DEV
 
     const verificationUrl = `${domain}/account/change-email/${token}`
 
@@ -118,7 +125,10 @@ const resetPasswordMail = async (user) => {
         expiresIn: '1h',
     })
 
-    const domain = env.parsed.NODE_ENV === 'prod' ? env.parsed.DOMAIN_PROD : env.parsed.DOMAIN_DEV
+    const domain =
+        env.parsed.NODE_ENV === 'prod'
+            ? env.parsed.DOMAIN_PROD
+            : env.parsed.DOMAIN_DEV
 
     const resetUrl = `${domain}/reset-password/${token}`
 

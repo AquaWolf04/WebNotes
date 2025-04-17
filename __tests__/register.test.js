@@ -6,33 +6,66 @@ describe('POST /register HTML-nézetből kiolvasott CSRF tokennel', () => {
     let cookies = []
 
     beforeEach(async () => {
-        const res = await request(app).get('/register') // ez a form oldal
+        const res = await request(app).get('/register')
 
-        // 1️⃣ Sütik mentése
         cookies = res.headers['set-cookie']
 
-        // 2️⃣ CSRF token kinyerése <meta> tagből
         const match = res.text.match(/<meta name="csrf-token" content="(.+?)"/)
         csrfToken = match ? match[1] : null
-        expect(csrfToken).not.toBeNull() // megelőző ellenőrzés
+        expect(csrfToken).not.toBeNull()
     })
 
     it('sikeres regisztráció', async () => {
+        const uniqueSuffix = Date.now() // vagy Math.random()
         const res = await request(app)
             .post('/register')
             .set('Cookie', cookies)
-            .set('X-CSRF-Token', csrfToken) // FONTOS: ez egyezik a frontendeddel
+            .set('X-CSRF-Token', csrfToken)
             .send({
-                username: 'tessttuser',
-                email: 'tessts@example.com',
-                create_password: 'securePass123!*',
-                confirm_password: 'securePass123!*',
+                username: `testuser_${uniqueSuffix}`,
+                email: `test_${uniqueSuffix}@example.com`,
+                create_password: 'SecuredPassword12!*',
+                confirm_password: 'SecuredPassword12!*',
             })
-
-        console.log('RESPONSE:', res.statusCode, res.body)
 
         expect(res.statusCode).toBe(200)
         expect(res.body.success).toBe(true)
         expect(res.body.redirect).toBe('/')
+    })
+})
+
+describe('POST /register HTML-nézetből kiolvasott CSRF tokennel', () => {
+    let csrfToken = ''
+    let cookies = []
+
+    beforeEach(async () => {
+        const res = await request(app).get('/register')
+
+        cookies = res.headers['set-cookie']
+
+        const match = res.text.match(/<meta name="csrf-token" content="(.+?)"/)
+        csrfToken = match ? match[1] : null
+        expect(csrfToken).not.toBeNull()
+    })
+
+    it('sikertelen regisztráció', async () => {
+        const uniqueSuffix = Date.now() // vagy Math.random()
+        const res = await request(app)
+            .post('/register')
+            .set('Cookie', cookies)
+            .set('X-CSRF-Token', csrfToken)
+            .send({
+                username: `testuser_${uniqueSuffix}`,
+                email: `test_${uniqueSuffix}@example.com`,
+                create_password: '1234!@#$',
+                confirm_password: '1234!@#$',
+            })
+
+        expect(res.statusCode).toBe(400)
+        const errorMessages = res.body.errors.map((e) => e.msg)
+
+        expect(errorMessages).toContain(
+            'A jelszónak tartalmaznia kell nagybetűt.'
+        )
     })
 })
